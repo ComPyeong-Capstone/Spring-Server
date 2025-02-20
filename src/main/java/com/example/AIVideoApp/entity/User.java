@@ -7,7 +7,6 @@ import java.util.List;
 @Entity
 @Getter @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "User")
 public class User {
 
