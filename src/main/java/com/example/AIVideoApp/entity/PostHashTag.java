@@ -6,7 +6,6 @@ import lombok.*;
 @Entity
 @Getter @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "Post_HashTag", uniqueConstraints = @UniqueConstraint(columnNames = {"post_id", "hash_id"}))
 public class PostHashTag {
 
