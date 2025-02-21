@@ -21,7 +21,6 @@ public class PostCommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-
     // 댓글 추가
     public PostCommentDTO addComment(Integer postId, Integer userId, String content) {
         User user = userRepository.findById(userId)
@@ -29,10 +28,12 @@ public class PostCommentService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        PostComment comment = new PostComment();
-        comment.setUser(user);
-        comment.setPost(post);
-        comment.setContent(content);
+        // ✅ PostComment 객체를 빌더 패턴으로 생성
+        PostComment comment = PostComment.builder()
+                .user(user)
+                .post(post)
+                .content(content)
+                .build();
 
         PostComment savedComment = postCommentRepository.save(comment);
         return new PostCommentDTO(savedComment);

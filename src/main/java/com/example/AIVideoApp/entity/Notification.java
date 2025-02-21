@@ -1,13 +1,16 @@
 package com.example.AIVideoApp.entity;
 
+import com.example.AIVideoApp.enums.NotificationType;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Getter @Setter
+@Getter@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "Notification")
 public class Notification {
 
@@ -19,12 +22,15 @@ public class Notification {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    @Column(nullable = false)
-    private String type; // 알림 유형 (예: "like", "comment")
+    @Enumerated(EnumType.STRING)
+    @Column(name="Noti_Type", nullable = false)
+    private NotificationType notiType; // 알림 유형 ("LIKE", "COMMENT")
 
-    @Column(nullable = false)
-    private Boolean isRead = false; // 읽음 여부 (기본값 false)
+    @Builder.Default
+    @Column(name="Noti_Read", nullable = false)
+    private Boolean notiRead = false; // 읽음 여부 (기본값 false)
 
+    @Builder.Default
     @Column(nullable = false)
     private LocalDateTime notiTime = LocalDateTime.now(); // 생성 시간
 
