@@ -5,15 +5,16 @@ import lombok.*;
 
 @Data
 public class PostCommentDTO {
-    private Integer commentId;
-    private Integer userId;
-    private Integer postId;
-    private String content;
+    private final Integer commentId;
+    private final Integer userId;
+    private final Integer postId;
+    private final String content;
 
-    public static PostCommentDTO of(PostComment postcomment){
-        PostCommentDTO postcommentDTO = new PostCommentDTO();
-        postcommentDTO.setCommentId(postcomment.getCommentId());
-        return postcommentDTO;
+    public PostCommentDTO(PostComment comment){
+        this.commentId = comment.getCommentId();
+        this.userId = comment.getUser().getUserId();
+        this.postId = comment.getPost().getPostId();
+        this.content = comment.getContent();
+
     }
-
 }
