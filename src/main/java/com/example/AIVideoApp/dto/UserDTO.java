@@ -1,23 +1,21 @@
 package com.example.AIVideoApp.dto;
 
 import com.example.AIVideoApp.entity.User;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@Data
+@Getter
+@RequiredArgsConstructor    // @NonNull이 붙은 필드를 포함한 생성자를 자동으로 생성
 public class UserDTO {
-    private Integer userId;
-    private String userName;
-    private String profileImage;
-    private String email;
+    private final Integer userId;
+    private final String userName;
+    private final String profileImage;
+    private final String email;
 
-    public static UserDTO of(User user){
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUserId(user.getUserId());
-        userDTO.setUserName(user.getUserName());
-        userDTO.setProfileImage(user.getProfileImage());
-        userDTO.setEmail(user.getEmail());
-
-        return userDTO;
+    public UserDTO(User user) {
+        this.userId = user.getUserId();
+        this.userName = user.getUserName();
+        this.profileImage = user.getProfileImage();
+        this.email = user.getEmail();
     }
 }
-

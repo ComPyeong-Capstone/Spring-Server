@@ -2,6 +2,7 @@ package com.example.AIVideoApp.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -27,11 +28,19 @@ public class User {
 
     // 관계 설정
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Post> posts;
+    private List<Post> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostLike> postLikes;
+    private List<PostLike> postLikes = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostComment> postComments;
+    private List<PostComment> postComments = new ArrayList<>();
+
+    // ✅ 필요한 필드만 받는 생성자 직접 추가
+    public User(String userName, String email, String password, String profileImage) {
+        this.userName = userName;
+        this.email = email;
+        this.password = password;
+        this.profileImage = profileImage;
+    }
 }
