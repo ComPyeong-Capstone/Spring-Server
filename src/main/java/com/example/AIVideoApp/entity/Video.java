@@ -13,11 +13,11 @@ public class Video {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer videoId;
 
-    @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
+    @OneToOne
+    @JoinColumn(name = "post_id", nullable = false, unique = true)
     private Post post;
 
-    @Column(nullable = false)
+    @Column(name="Video_URL", nullable = false)
     private String videoUrl;
 }
 
