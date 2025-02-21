@@ -16,6 +16,7 @@ public class PostDTO {
     private final int likeCount;
     private final int commentCount;
     private final List<String> hashtags;
+    private final String videoUrl;
 
     // ✅ `Post` 엔티티를 받아서 `PostDTO`로 변환하는 생성자 추가
     public PostDTO(Post post) {
@@ -28,5 +29,6 @@ public class PostDTO {
         this.hashtags = post.getPostHashTags().stream()
                 .map(postHashTag -> postHashTag.getHashTag().getHashName())
                 .collect(Collectors.toList());
+        this.videoUrl = (post.getVideo() != null) ? post.getVideo().getVideoUrl() : null;
     }
 }
