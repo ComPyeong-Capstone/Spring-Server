@@ -9,7 +9,6 @@ import com.example.AIVideoApp.repository.PostRepository;
 import com.example.AIVideoApp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,43 +21,35 @@ public class PostCommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-    // 댓글 저장
-    @Transactional
-    public PostCommentDTO saveComment(PostCommentDTO postCommentDTO) {
-        User user = userRepository.findById(postCommentDTO.getUserId())
+
+    // 댓글 추가
+    public PostCommentDTO addComment(Integer postId, Integer userId, String content) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        Post post = postRepository.findById(postCommentDTO.getPostId())
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        PostComment postComment = new PostComment();
-        postComment.setUser(user);
-        postComment.setPost(post);
-        postComment.setContent(postCommentDTO.getContent());
+        PostComment comment = new PostComment();
+        comment.setUser(user);
+        comment.setPost(post);
+        comment.setContent(content);
 
-        postComment = postCommentRepository.save(postComment);
-
-        postCommentDTO.setCommentId(postComment.getCommentId());
-        return postCommentDTO;
+        PostComment savedComment = postCommentRepository.save(comment);
+        return new PostCommentDTO(savedComment);
     }
-
-    // 특정 게시글의 댓글 조회
+    /*
+    // 특정 게시물의 댓글 조회
     public List<PostCommentDTO> getCommentsByPostId(Integer postId) {
-        return postCommentRepository.findByPost_PostId(postId)
-                .stream()
-                .map(comment -> new PostCommentDTO(
-                        comment.getCommentId(),
-                        comment.getUser().getUserId(),
-                        comment.getPost().getPostId(),
-                        comment.getContent()))
-                .collect(Collectors.toList());
+        List<PostComment> comments = postCommentRepository.findByPost_PostId(postId);
+        return comments.stream().map(PostCommentDTO::new).collect(Collectors.toList());
     }
 
     // 댓글 삭제
-    @Transactional
     public void deleteComment(Integer commentId) {
         if (!postCommentRepository.existsById(commentId)) {
             throw new RuntimeException("Comment not found");
         }
         postCommentRepository.deleteById(commentId);
     }
+     */
 }

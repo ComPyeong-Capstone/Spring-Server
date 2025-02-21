@@ -10,10 +10,11 @@ public class PostCommentDTO {
     private Integer postId;
     private String content;
 
-    public static PostCommentDTO of(PostComment postcomment){
-        PostCommentDTO postcommentDTO = new PostCommentDTO();
-        postcommentDTO.setCommentId(postcomment.getCommentId());
-        return postcommentDTO;
-    }
+    public PostCommentDTO(PostComment comment){
+        this.commentId = comment.getCommentId();
+        this.userId = comment.getUser().getUserId();
+        this.postId = comment.getPost().getPostId();
+        this.content = comment.getContent();
 
+    }
 }
