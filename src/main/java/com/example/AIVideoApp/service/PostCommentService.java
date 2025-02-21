@@ -37,7 +37,7 @@ public class PostCommentService {
         PostComment savedComment = postCommentRepository.save(comment);
         return new PostCommentDTO(savedComment);
     }
-    /*
+
     // 특정 게시물의 댓글 조회
     public List<PostCommentDTO> getCommentsByPostId(Integer postId) {
         List<PostComment> comments = postCommentRepository.findByPost_PostId(postId);
@@ -51,5 +51,5 @@ public class PostCommentService {
         }
         postCommentRepository.deleteById(commentId);
     }
-     */
+
 }
