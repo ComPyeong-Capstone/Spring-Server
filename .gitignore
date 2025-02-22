@@ -36,3 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 local.properties
+
+# application.properties 파일을 Git에서 제외
+src/main/resources/application.properties
