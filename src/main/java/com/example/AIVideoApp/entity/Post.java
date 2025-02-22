@@ -25,15 +25,15 @@ public class Post {
     @Column(nullable = false)
     private java.time.LocalDateTime updateTime;
 
+    @Column(length = 2083)
+    private String videoURL;
+
     // 관계 설정
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLike> postLikes;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostComment> postComments;
-
-    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Video video;
+    private List<PostComment> postComments
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostHashTag> postHashTags;
