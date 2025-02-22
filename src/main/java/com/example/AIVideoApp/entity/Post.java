@@ -33,7 +33,7 @@ public class Post {
     private List<PostLike> postLikes;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostComment> postComments
+    private List<PostComment> postComments;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostHashTag> postHashTags;
