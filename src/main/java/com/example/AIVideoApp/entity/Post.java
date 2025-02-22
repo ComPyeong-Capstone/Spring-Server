@@ -2,6 +2,8 @@ package com.example.AIVideoApp.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,11 +32,11 @@ public class Post {
 
     // 관계 설정
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostLike> postLikes;
+    private List<PostLike> postLikes = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostComment> postComments;
+    private List<PostComment> postComments = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostHashTag> postHashTags;
+    private List<PostHashTag> postHashTags = new ArrayList<>();
 }
