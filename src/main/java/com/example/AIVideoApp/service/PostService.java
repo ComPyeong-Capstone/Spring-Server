@@ -9,6 +9,7 @@ import com.example.AIVideoApp.repository.PostRepository;
 import com.example.AIVideoApp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -73,6 +74,12 @@ public class PostService {
 
     // 🔹 게시물 삭제
     public void deletePost(Integer postId) {
+        // 게시물이 존재하는지 확인
+        if (!postRepository.existsById(postId)) {
+            throw new EntityNotFoundException("삭제할 게시물이 존재하지 않습니다.");
+        }
+
+        // 게시물 삭제
         postRepository.deleteById(postId);
     }
 
