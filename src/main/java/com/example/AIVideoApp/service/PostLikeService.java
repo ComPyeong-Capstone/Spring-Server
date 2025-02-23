@@ -1,6 +1,7 @@
 package com.example.AIVideoApp.service;
 
 import com.example.AIVideoApp.dto.PostLikeDTO;
+import com.example.AIVideoApp.dto.UserDTO;
 import com.example.AIVideoApp.entity.Post;
 import com.example.AIVideoApp.entity.PostLike;
 import com.example.AIVideoApp.entity.User;
@@ -9,8 +10,9 @@ import com.example.AIVideoApp.repository.PostRepository;
 import com.example.AIVideoApp.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PostLikeService {
@@ -58,7 +60,17 @@ public class PostLikeService {
         return "좋아요를 취소했습니다.";
     }
 
+    //좋아요 누른 유저 수 조회
     public long getLikeCount(Integer postId) {
         return postLikeRepository.countByPostPostId(postId);
     }
+
+    //좋아요 누른 유저 목록 조회
+    public List<UserDTO> getLikers(Integer postId) {
+        List<PostLike> likes = postLikeRepository.findByPostPostId(postId);
+        return likes.stream()
+                .map(like -> new UserDTO(like.getUser()))
+                .collect(Collectors.toList());
+    }
+
 }

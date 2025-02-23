@@ -34,9 +34,12 @@ public class PostCommentController {
     }
 
     // 댓글 삭제
-    @DeleteMapping("/posts/{postId}/comments/{commentId}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Integer commentId) {
-        postCommentService.deleteComment(commentId);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{commentId}/users/{userId}")
+    public ResponseEntity<String> deleteComment(
+            @PathVariable Integer postId,
+            @PathVariable Integer commentId,
+            @PathVariable Integer userId) {
+        postCommentService.deleteComment(postId, commentId, userId);
+        return ResponseEntity.ok("댓글이 삭제되었습니다.");
     }
 }
