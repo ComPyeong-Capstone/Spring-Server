@@ -1,28 +1,52 @@
 package com.example.AIVideoApp.service;
 
 import com.example.AIVideoApp.dto.PostDTO;
+import com.example.AIVideoApp.entity.HashTag;
 import com.example.AIVideoApp.entity.Post;
+import com.example.AIVideoApp.entity.PostHashTag;
+import com.example.AIVideoApp.repository.HashTagRepository;
 import com.example.AIVideoApp.repository.PostRepository;
+import com.example.AIVideoApp.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PostService {
 
     private final PostRepository postRepository;
-
-    public PostService(PostRepository postRepository) {
-        this.postRepository = postRepository;
-    }
+    private final UserRepository userRepository;
+    private final HashTagRepository hashTagRepository;
 
     // 🔹 게시물 등록 (DTO 반환)
-    public PostDTO createPost(Post post) {
+    public PostDTO createPost(PostDTO postDTO) {
+        Post post = new Post();
+        post.setTitle(postDTO.getTitle());
+        post.setUser(userRepository.findById(postDTO.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found")));
+        post.setVideoURL(postDTO.getVideoURL());
+        post.setUpdateTime(LocalDateTime.now()); // ✅ 자동 시간 반영
+
+        // 🔹 해시태그 처리
+        List<PostHashTag> postHashTags = postDTO.getHashtags().stream().map(tagName -> {
+            HashTag tag = hashTagRepository.findByHashName(tagName)
+                    .orElseGet(() -> hashTagRepository.save(HashTag.builder().hashName(tagName).build())); // ✅ `@Builder` 적용
+            return PostHashTag.builder()
+                    .post(post)
+                    .hashTag(tag)
+                    .build(); // ✅ 빌더 적용
+        }).collect(Collectors.toList());
+
+        post.setPostHashTags(postHashTags); // ✅ 연관관계 설정
         Post savedPost = postRepository.save(post);
-        return new PostDTO(savedPost); // ✅ DTO 변환 생성자 사용
+        return new PostDTO(savedPost);
     }
+
 
     // 🔹 전체 게시물 조회 (DTO 반환)
     public List<PostDTO> getAllPosts() {

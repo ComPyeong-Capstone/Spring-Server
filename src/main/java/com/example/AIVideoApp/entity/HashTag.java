@@ -6,6 +6,8 @@ import lombok.*;
 @Entity
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "HashTag")
 public class HashTag {
 
