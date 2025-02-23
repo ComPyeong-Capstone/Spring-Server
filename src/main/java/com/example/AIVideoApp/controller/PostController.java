@@ -19,9 +19,9 @@ public class PostController {
         this.postService = postService;
     }
 
-    // 1️⃣ 게시물 등록 (POST /posts)
+    // 1️⃣ 게시물 등록 (POST /posts)ㅇ
     @PostMapping
-    public ResponseEntity<PostDTO> createPost(@RequestBody Post post) {
+    public ResponseEntity<PostDTO> createPost(@RequestBody PostDTO post) {
         return ResponseEntity.ok(postService.createPost(post)); // ✅ Post → PostDTO 반환
     }
 
