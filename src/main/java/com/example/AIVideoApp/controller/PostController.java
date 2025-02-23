@@ -5,6 +5,8 @@ import com.example.AIVideoApp.entity.Post;
 import com.example.AIVideoApp.service.PostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -46,8 +48,12 @@ public class PostController {
     // 5️⃣ 게시물 삭제 (DELETE /posts/{postId})
     @DeleteMapping("/{postId}")
     public ResponseEntity<String> deletePost(@PathVariable Integer postId) {
-        postService.deletePost(postId);
-        return ResponseEntity.ok("게시물이 삭제되었습니다.");
+        try {
+            postService.deletePost(postId);
+            return ResponseEntity.ok("게시물이 삭제되었습니다.");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     // 6️⃣ 게시물 수정 (PUT /posts/{postId})
