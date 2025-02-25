@@ -21,10 +21,14 @@ public class PostController {
         this.postService = postService;
     }
 
-    // 1️⃣ 게시물 등록 (POST /posts)ㅇ
     @PostMapping
-    public ResponseEntity<PostDTO> createPost(@RequestBody PostDTO post) {
-        return ResponseEntity.ok(postService.createPost(post)); // ✅ Post → PostDTO 반환
+    public ResponseEntity<String> createPost(@RequestBody PostDTO post) {
+        try {
+            postService.createPost(post); // ✅ 게시물 저장
+            return ResponseEntity.ok("게시물이 성공적으로 등록되었습니다.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage()); // ✅ 예외 메시지 반환
+        }
     }
 
     // 2️⃣ 전체 게시물 조회 (GET /posts)
