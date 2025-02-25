@@ -25,29 +25,27 @@ public class PostService {
     private final HashTagRepository hashTagRepository;
 
     // 🔹 게시물 등록 (DTO 반환)
-    public PostDTO createPost(PostDTO postDTO) {
+    public void createPost(PostDTO postDTO) {
         Post post = new Post();
         post.setTitle(postDTO.getTitle());
         post.setUser(userRepository.findById(postDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found")));
+                .orElseThrow(() -> new RuntimeException("해당 ID의 사용자를 찾을 수 없습니다."))); // ✅ 예외 메시지 수정
         post.setVideoURL(postDTO.getVideoURL());
-        post.setUpdateTime(LocalDateTime.now()); // ✅ 자동 시간 반영
+        post.setUpdateTime(LocalDateTime.now());
 
         // 🔹 해시태그 처리
         List<PostHashTag> postHashTags = postDTO.getHashtags().stream().map(tagName -> {
             HashTag tag = hashTagRepository.findByHashName(tagName)
-                    .orElseGet(() -> hashTagRepository.save(HashTag.builder().hashName(tagName).build())); // ✅ `@Builder` 적용
+                    .orElseGet(() -> hashTagRepository.save(HashTag.builder().hashName(tagName).build()));
             return PostHashTag.builder()
                     .post(post)
                     .hashTag(tag)
-                    .build(); // ✅ 빌더 적용
+                    .build();
         }).collect(Collectors.toList());
 
-        post.setPostHashTags(postHashTags); // ✅ 연관관계 설정
-        Post savedPost = postRepository.save(post);
-        return new PostDTO(savedPost);
+        post.setPostHashTags(postHashTags);
+        postRepository.save(post);
     }
-
 
     // 🔹 전체 게시물 조회 (DTO 반환)
     public List<PostDTO> getAllPosts() {
