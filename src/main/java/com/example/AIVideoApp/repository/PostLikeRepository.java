@@ -12,8 +12,10 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Integer> {
     boolean existsByPostPostIdAndUserUserId(Integer postId, Integer userId);
     // 특정 게시글의 특정 유저가 누른 좋아요 삭제
     void deleteByPostPostIdAndUserUserId(Integer postId, Integer userId);
+
     // 특정 게시글의 좋아요 개수 조회
-    long countByPostPostId(Integer postId);
+    //long countByPostPostId(Integer postId);
+
     // 특정 게시글의 좋아요 누른 유저 조회
     List<PostLike> findByPostPostId(Integer postId);
 
