@@ -17,10 +17,10 @@ public class PostLikeController {
         this.postLikeService = postLikeService;
     }
 
-    @PostMapping
-    public ResponseEntity<String> likePost(@PathVariable Integer postId, @RequestBody PostLikeDTO postLikeDTO) {
+    @PostMapping("/{userId}")
+    public ResponseEntity<String> likePost(@PathVariable Integer postId, @PathVariable Integer userId) {
 
-        String message = postLikeService.likePost(postLikeDTO);
+        String message = postLikeService.likePost(postId, userId);
         return ResponseEntity.ok(message);
     }
 
@@ -31,11 +31,12 @@ public class PostLikeController {
     }
 
     //좋아요를 누른 유저 수만 조회
-    @GetMapping
+    /*@GetMapping
     public ResponseEntity<Long> getLikeCount(@PathVariable Integer postId) {
         long count = postLikeService.getLikeCount(postId);
         return ResponseEntity.ok(count);
-    }
+    }*/
+
     //좋아요를 누른 유저들 정보 조회
     @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> getLikers(@PathVariable Integer postId) {

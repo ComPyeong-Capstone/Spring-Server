@@ -28,9 +28,8 @@ public class PostLikeService {
     }
 
     @Transactional
-    public String likePost(PostLikeDTO postLikeDTO) {
-        Integer postId = postLikeDTO.getPostId();
-        Integer userId = postLikeDTO.getUserId();
+    public String likePost(Integer postId, Integer userId) {
+
 
         Optional<Post> postOpt = postRepository.findById(postId);
         Optional<User> userOpt = userRepository.findById(userId);
@@ -61,9 +60,9 @@ public class PostLikeService {
     }
 
     //좋아요 누른 유저 수 조회
-    public long getLikeCount(Integer postId) {
+    /*public long getLikeCount(Integer postId) {
         return postLikeRepository.countByPostPostId(postId);
-    }
+    }*/
 
     //좋아요 누른 유저 목록 조회
     public List<UserDTO> getLikers(Integer postId) {
