@@ -29,7 +29,7 @@ public class PostService {
         Post post = new Post();
         post.setTitle(postDTO.getTitle());
         post.setUser(userRepository.findById(postDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("해당 ID의 사용자를 찾을 수 없습니다."))); // ✅ 예외 메시지 수정
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."))); // ✅ 예외 메시지 수정
         post.setVideoURL(postDTO.getVideoURL());
         post.setUpdateTime(LocalDateTime.now());
 

@@ -1,8 +1,11 @@
 package com.example.AIVideoApp.controller;
 
 import com.example.AIVideoApp.dto.UserDTO;
+import com.example.AIVideoApp.exception.EmailNotFoundException;
+import com.example.AIVideoApp.exception.InvalidPasswordException;
 import com.example.AIVideoApp.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,9 +34,23 @@ public class UserController {
     }
 
     // 로그인
-    @GetMapping("/login")
-    public ResponseEntity<UserDTO> loginUser(@RequestParam String email, @RequestParam String password) {
-        return ResponseEntity.ok(userService.loginUser(email, password));
+    @GetMapping("/login")  // ✅ GET -> POST 변경 (보안 강화)
+    public ResponseEntity<?> loginUser(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            String password = request.get("password");
+
+            if (email == null || password == null) {
+                return ResponseEntity.badRequest().body("이메일과 비밀번호를 입력해야 합니다."); // ❌ 400 에러 반환
+            }
+
+            UserDTO userDTO = userService.loginUser(email, password);
+            return ResponseEntity.ok(userDTO);  // ✅ 성공 시 200 OK + UserDTO 반환
+        } catch (EmailNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // ❌ 404 에러 반환
+        } catch (InvalidPasswordException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage()); // ❌ 401 에러 반환
+        }
     }
 
     // 프로필 이미지 설정

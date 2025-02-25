@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.AIVideoApp.exception.EmailNotFoundException;
+import com.example.AIVideoApp.exception.InvalidPasswordException;
 
 @Service
 @RequiredArgsConstructor
@@ -33,14 +35,14 @@ public class UserService {
     // 🔹 로그인 (이메일과 비밀번호 검증)
     public UserDTO loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("이메일이 존재하지 않습니다."));
+                .orElseThrow(() -> new EmailNotFoundException("이메일이 존재하지 않습니다.")); // ✅ 사용자 정의 예외로 변경
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+            throw new InvalidPasswordException("비밀번호가 일치하지 않습니다."); // ✅ 사용자 정의 예외로 변경
         }
-
-        return new UserDTO(user); // ✅ DTO 변환
+        return new UserDTO(user); // ✅ 로그인 성공 시 UserDTO 반환
     }
+
 
     // 🔹 프로필 이미지 설정
     @Transactional
