@@ -25,7 +25,7 @@ public class NotificationService {
 
     // 1️⃣ 알림 생성
     @Transactional
-    public NotificationDTO createNotification(Integer senderId, Integer receiverId, Integer postId, String type) {
+    public void createNotification(Integer senderId, Integer receiverId, Integer postId, String type) {
         User sender = userRepository.findById(senderId)
                 .orElseThrow(() -> new RuntimeException("보낸 사용자를 찾을 수 없습니다."));
         User receiver = userRepository.findById(receiverId)
@@ -40,8 +40,7 @@ public class NotificationService {
                 .notiType(NotificationType.valueOf(type.toUpperCase()))
                 .build();
 
-        Notification savedNotification = notificationRepository.save(notification);
-        return new NotificationDTO(savedNotification);
+        notificationRepository.save(notification);
     }
 
     // 2️⃣ 특정 사용자의 모든 알림 목록 조회 (최신순)
@@ -54,12 +53,11 @@ public class NotificationService {
 
     // 3️⃣ 특정 알림을 읽음 처리
     @Transactional
-    public NotificationDTO markNotificationAsRead(Integer notiId) {
+    public void markNotificationAsRead(Integer notiId) {
         Notification notification = notificationRepository.findById(notiId)
                 .orElseThrow(() -> new RuntimeException("해당 알림을 찾을 수 없습니다."));
         notification.setNotiRead(true);
         notificationRepository.save(notification);
-        return new NotificationDTO(notification);
     }
 
 }
