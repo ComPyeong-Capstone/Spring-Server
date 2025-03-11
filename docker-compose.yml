@@ -21,7 +21,7 @@ services:
     container_name: my-aivideoapp
     depends_on:
       mysql:
-        condition: service_healthydlfj
+        condition: service_healthy
     ports:
       - "8080:8080"
     environment:
