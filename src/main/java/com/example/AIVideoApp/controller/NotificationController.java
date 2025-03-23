@@ -1,6 +1,7 @@
 package com.example.AIVideoApp.controller;
 
 import com.example.AIVideoApp.dto.NotificationDTO;
+import com.example.AIVideoApp.enums.NotificationType;
 import com.example.AIVideoApp.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,7 @@ public class NotificationController {
             @RequestParam Integer senderId,
             @RequestParam Integer receiverId,
             @RequestParam Integer postId,
-            @RequestParam String type) {
+            @RequestParam NotificationType type) {
         try {
             notificationService.createNotification(senderId, receiverId, postId, type);
             return ResponseEntity.ok("알림이 성공적으로 생성되었습니다.");

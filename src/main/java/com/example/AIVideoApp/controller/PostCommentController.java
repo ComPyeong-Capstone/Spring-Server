@@ -27,9 +27,10 @@ public class PostCommentController {
     public ResponseEntity<PostCommentDTO> addComment(
             @PathVariable Integer postId,
             @RequestParam Integer userId,
-            @RequestParam String content) {
+            @RequestParam String content,
+            @RequestParam(required = false) Integer parentCommentId) {
 
-        PostCommentDTO commentDTO = postCommentService.addComment(postId, userId, content);
+        PostCommentDTO commentDTO = postCommentService.addComment(postId, userId, content, parentCommentId);
         return ResponseEntity.ok(commentDTO);
     }
 

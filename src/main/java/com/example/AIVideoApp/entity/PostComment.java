@@ -3,6 +3,8 @@ package com.example.AIVideoApp.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter @Setter
 @NoArgsConstructor
@@ -25,6 +27,14 @@ public class PostComment {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "Parent_Comment_ID")
+    private PostComment parent;
+
+    @Column(name = "Created_At")
+    private LocalDateTime createdAt;
+
 }
 
 

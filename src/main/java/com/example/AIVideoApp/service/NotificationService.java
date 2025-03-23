@@ -25,7 +25,7 @@ public class NotificationService {
 
     // 1️⃣ 알림 생성
     @Transactional
-    public void createNotification(Integer senderId, Integer receiverId, Integer postId, String type) {
+    public void createNotification(Integer senderId, Integer receiverId, Integer postId, NotificationType type) {
         User sender = userRepository.findById(senderId)
                 .orElseThrow(() -> new RuntimeException("보낸 사용자를 찾을 수 없습니다."));
         User receiver = userRepository.findById(receiverId)
@@ -37,7 +37,7 @@ public class NotificationService {
                 .sender(sender)
                 .receiver(receiver)
                 .post(post)
-                .notiType(NotificationType.valueOf(type.toUpperCase()))
+                .notiType(type)
                 .build();
 
         notificationRepository.save(notification);

@@ -22,17 +22,25 @@ public class PostCommentService {
     private final PostRepository postRepository;
 
     // 댓글 추가
-    public PostCommentDTO addComment(Integer postId, Integer userId, String content) {
+    public PostCommentDTO addComment(Integer postId, Integer userId, String content, Integer parentCommentId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        // ✅ 부모 댓글 가져오기 (대댓글일 경우)
+        PostComment parentComment = null;
+        if (parentCommentId != null) {
+            parentComment = postCommentRepository.findById(parentCommentId)
+                    .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+        }
 
         // ✅ PostComment 객체를 빌더 패턴으로 생성
         PostComment comment = PostComment.builder()
                 .user(user)
                 .post(post)
                 .content(content)
+                .parent(parentComment)
                 .build();
 
         PostComment savedComment = postCommentRepository.save(comment);
