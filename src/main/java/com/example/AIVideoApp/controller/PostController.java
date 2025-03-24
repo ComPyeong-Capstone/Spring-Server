@@ -62,7 +62,7 @@ public class PostController {
     }
 
     // 6️⃣ 게시물 수정 (PUT /posts/{postId})
-    @PutMapping("/{postId}")
+    @PutMapping
     public ResponseEntity<PostDTO> updatePost(@PathVariable Integer postId, @RequestBody Post updatedPost) {
         Optional<PostDTO> updated = postService.updatePost(postId, updatedPost); // ✅ Post → PostDTO 반환
         return updated.map(ResponseEntity::ok)
@@ -70,15 +70,15 @@ public class PostController {
     }
 
     // 게시글 좋아요 추가
-    @PostMapping("/{postId}/likes/{userId}")
-    public ResponseEntity<String> likePost(@PathVariable Integer postId, @PathVariable Integer userId) {
+    @PostMapping("/{postId}/likes")
+    public ResponseEntity<String> likePost(@PathVariable Integer postId, @RequestParam Integer userId) {
         String message = postLikeService.likePost(postId, userId);
         return ResponseEntity.ok(message);
     }
 
     // 게시글 좋아요 취소
-    @DeleteMapping("/{postId}/likes/{userId}")
-    public ResponseEntity<String> unlikePost(@PathVariable Integer postId, @PathVariable Integer userId) {
+    @DeleteMapping("/{postId}/likes")
+    public ResponseEntity<String> unlikePost(@PathVariable Integer postId, @RequestParam Integer userId) {
         String message = postLikeService.unlikePost(postId, userId);
         return ResponseEntity.ok(message);
     }

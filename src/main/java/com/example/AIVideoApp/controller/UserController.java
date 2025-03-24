@@ -54,8 +54,8 @@ public class UserController {
     }
 
     // 프로필 이미지 설정
-    @PutMapping("/{userId}/profile-image")
-    public ResponseEntity<String> updateProfileImage(@PathVariable Integer userId, @RequestBody Map<String, String> request) {
+    @PutMapping("/profile-image")
+    public ResponseEntity<String> updateProfileImage(@RequestParam Integer userId, @RequestBody Map<String, String> request) {
         try {
             userService.updateProfileImage(userId, request.get("profileImageUrl"));
             return ResponseEntity.ok("프로필 이미지 변경 성공");
@@ -65,8 +65,8 @@ public class UserController {
     }
 
     // 닉네임 설정
-    @PutMapping("/{userId}/nickname")
-    public ResponseEntity<String> updateNickname(@PathVariable Integer userId, @RequestBody Map<String, String> request) {
+    @PutMapping("/nickname")
+    public ResponseEntity<String> updateNickname(@RequestParam Integer userId, @RequestBody Map<String, String> request) {
         try {
             userService.updateNickname(userId, request.get("newNickname"));
             return ResponseEntity.ok("닉네임 변경 성공");

@@ -37,11 +37,11 @@ public class PostCommentController {
     }
 
     // 댓글 삭제
-    @DeleteMapping("/{commentId}/users/{userId}")
+    @DeleteMapping("/{commentId}")
     public ResponseEntity<String> deleteComment(
             @PathVariable Integer postId,
             @PathVariable Integer commentId,
-            @PathVariable Integer userId) {
+            @RequestParam Integer userId) {
         postCommentService.deleteComment(postId, commentId, userId);
         return ResponseEntity.ok("댓글이 삭제되었습니다.");
     }
@@ -49,8 +49,9 @@ public class PostCommentController {
     /**
      * ✅ 댓글 좋아요 추가
      */
-    @PostMapping("/{commentId}/like")
+    @PostMapping("/{commentId}/likes")
     public ResponseEntity<String> likeComment(
+            @PathVariable Integer postId,
             @PathVariable Integer commentId,
             @RequestParam Integer userId) {
 
@@ -61,8 +62,9 @@ public class PostCommentController {
     /**
      * ✅ 댓글 좋아요 취소
      */
-    @DeleteMapping("/{commentId}/like")
+    @DeleteMapping("/{commentId}/likes")
     public ResponseEntity<String> unlikeComment(
+            @PathVariable Integer postId,
             @PathVariable Integer commentId,
             @RequestParam Integer userId) {
 
@@ -73,7 +75,7 @@ public class PostCommentController {
     /**
      * ✅ 댓글 좋아요 개수 조회
      */
-    @GetMapping("/{commentId}/likes/count")
+    @GetMapping("{commentId}/likes/count")
     public ResponseEntity<Long> getCommentLikeCount(@PathVariable Integer commentId) {
         long likeCount = commentLikeService.countLikes(commentId);
         return ResponseEntity.ok(likeCount);
