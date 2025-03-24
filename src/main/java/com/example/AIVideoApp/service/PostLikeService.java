@@ -60,9 +60,9 @@ public class PostLikeService {
     }
 
     //좋아요 누른 유저 수 조회
-    /*public long getLikeCount(Integer postId) {
-        return postLikeRepository.countByPostPostId(postId);
-    }*/
+    public long getLikeCount(Integer postId) {
+        return postLikeRepository.countByPost_PostId(postId);
+    }
 
     //좋아요 누른 유저 목록 조회
     public List<UserDTO> getLikers(Integer postId) {

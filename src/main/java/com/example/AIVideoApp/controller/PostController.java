@@ -1,8 +1,11 @@
 package com.example.AIVideoApp.controller;
 
 import com.example.AIVideoApp.dto.PostDTO;
+import com.example.AIVideoApp.dto.UserDTO;
 import com.example.AIVideoApp.entity.Post;
+import com.example.AIVideoApp.service.PostLikeService;
 import com.example.AIVideoApp.service.PostService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -13,13 +16,11 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/posts")
+@RequiredArgsConstructor
 public class PostController {
 
     private final PostService postService;
-
-    public PostController(PostService postService) {
-        this.postService = postService;
-    }
+    private final PostLikeService postLikeService;
 
     @PostMapping
     public ResponseEntity<String> createPost(@RequestBody PostDTO post) {
@@ -67,4 +68,26 @@ public class PostController {
         return updated.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    // 게시글 좋아요 추가
+    @PostMapping("/{postId}/likes/{userId}")
+    public ResponseEntity<String> likePost(@PathVariable Integer postId, @PathVariable Integer userId) {
+        String message = postLikeService.likePost(postId, userId);
+        return ResponseEntity.ok(message);
+    }
+
+    // 게시글 좋아요 취소
+    @DeleteMapping("/{postId}/likes/{userId}")
+    public ResponseEntity<String> unlikePost(@PathVariable Integer postId, @PathVariable Integer userId) {
+        String message = postLikeService.unlikePost(postId, userId);
+        return ResponseEntity.ok(message);
+    }
+
+    // 게시글 좋아요 누른 유저 리스트 조회
+    @GetMapping("/{postId}/likes/users")
+    public ResponseEntity<List<UserDTO>> getLikers(@PathVariable Integer postId) {
+        List<UserDTO> likers = postLikeService.getLikers(postId);
+        return ResponseEntity.ok(likers);
+    }
+
 }

@@ -11,10 +11,12 @@ public class PostCommentDTO {
     private final Integer userId;
     private final Integer postId;
     private final String content;
-    private Integer parentCommentID;
-    private LocalDateTime createdAt;
+    private final Integer parentCommentID;
+    private final LocalDateTime createdAt;
+    private final int likeCount;
+    private final boolean likedByMe;
 
-    public PostCommentDTO(PostComment comment){
+    public PostCommentDTO(PostComment comment, Integer currentUserId){
         this.commentId = comment.getCommentId();
         this.userId = comment.getUser().getUserId();
         this.postId = comment.getPost().getPostId();
@@ -23,5 +25,8 @@ public class PostCommentDTO {
                 ? comment.getParent().getCommentId()
                 : null;
         this.createdAt = comment.getCreatedAt();
+        this.likeCount = comment.getLikes().size();
+        this.likedByMe = comment.getLikes().stream()
+                .anyMatch(like -> like.getUser().getUserId().equals(currentUserId));
     }
 }

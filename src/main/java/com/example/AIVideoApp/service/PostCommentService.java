@@ -44,23 +44,17 @@ public class PostCommentService {
                 .build();
 
         PostComment savedComment = postCommentRepository.save(comment);
-        return new PostCommentDTO(savedComment);
+        return new PostCommentDTO(savedComment, userId);
     }
 
     // 특정 게시물의 댓글 조회
-    public List<PostCommentDTO> getCommentsByPostId(Integer postId) {
+    public List<PostCommentDTO> getCommentsByPostId(Integer postId, Integer currentUserId) {
         List<PostComment> comments = postCommentRepository.findByPost_PostId(postId);
-        return comments.stream().map(PostCommentDTO::new).collect(Collectors.toList());
-    }
 
-    /*
-    // 댓글 삭제
-    public void deleteComment(Integer commentId) {
-        if (!postCommentRepository.existsById(commentId)) {
-            throw new RuntimeException("Comment not found");
-        }
-        postCommentRepository.deleteById(commentId);
-    }*/
+        return comments.stream()
+                .map(comment -> new PostCommentDTO(comment, currentUserId)) // ✅ currentUserId 전달
+                .collect(Collectors.toList());
+    }
 
     public void deleteComment(Integer postId, Integer commentId, Integer UserId) {
         // 댓글 조회
