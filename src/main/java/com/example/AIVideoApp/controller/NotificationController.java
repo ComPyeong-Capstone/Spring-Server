@@ -1,6 +1,7 @@
 package com.example.AIVideoApp.controller;
 
 import com.example.AIVideoApp.dto.NotificationDTO;
+import com.example.AIVideoApp.dto.NotificationRequestDTO;
 import com.example.AIVideoApp.enums.NotificationType;
 import com.example.AIVideoApp.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -19,13 +20,14 @@ public class NotificationController {
 
     // 1️⃣ **알림 생성 (POST /notifications)**
     @PostMapping
-    public ResponseEntity<String> createNotification(
-            @RequestParam Integer senderId,
-            @RequestParam Integer receiverId,
-            @RequestParam Integer postId,
-            @RequestParam NotificationType type) {
+    public ResponseEntity<String> createNotification(@RequestBody NotificationRequestDTO request) {
         try {
-            notificationService.createNotification(senderId, receiverId, postId, type);
+            notificationService.createNotification(
+                    request.getSenderId(),
+                    request.getReceiverId(),
+                    request.getPostId(),
+                    request.getType()
+            );
             return ResponseEntity.ok("알림이 성공적으로 생성되었습니다.");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
