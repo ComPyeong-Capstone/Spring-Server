@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "HashTag")
+@Table(name = "hash_tag")
 public class HashTag {
 
     @Id

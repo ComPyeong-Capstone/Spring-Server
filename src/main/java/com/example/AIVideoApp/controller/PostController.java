@@ -2,7 +2,6 @@ package com.example.AIVideoApp.controller;
 
 import com.example.AIVideoApp.dto.PostDTO;
 import com.example.AIVideoApp.dto.UserDTO;
-import com.example.AIVideoApp.entity.Post;
 import com.example.AIVideoApp.service.PostLikeService;
 import com.example.AIVideoApp.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +23,7 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<String> createPost(@RequestBody PostDTO post) {
+        System.out.println("createPost() Called");
         try {
             postService.createPost(post); // ✅ 게시물 저장
             return ResponseEntity.ok("게시물이 성공적으로 등록되었습니다.");
@@ -62,8 +62,8 @@ public class PostController {
     }
 
     // 6️⃣ 게시물 수정 (PUT /posts/{postId})
-    @PutMapping
-    public ResponseEntity<PostDTO> updatePost(@PathVariable Integer postId, @RequestBody Post updatedPost) {
+    @PutMapping("/{postId}")
+    public ResponseEntity<PostDTO> updatePost(@PathVariable Integer postId, @RequestBody PostDTO updatedPost) {
         Optional<PostDTO> updated = postService.updatePost(postId, updatedPost); // ✅ Post → PostDTO 반환
         return updated.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
