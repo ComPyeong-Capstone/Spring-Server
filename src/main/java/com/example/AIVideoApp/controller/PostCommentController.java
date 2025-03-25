@@ -5,6 +5,7 @@ import com.example.AIVideoApp.dto.PostCommentDTO;
 import com.example.AIVideoApp.service.CommentLikeService;
 import com.example.AIVideoApp.service.PostCommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,8 +49,12 @@ public class PostCommentController {
             @PathVariable Integer postId,
             @PathVariable Integer commentId,
             @RequestParam Integer userId) {
-        postCommentService.deleteComment(postId, commentId, userId);
-        return ResponseEntity.ok("댓글이 삭제되었습니다.");
+        try {
+            postCommentService.deleteComment(postId, commentId, userId);
+            return ResponseEntity.ok("댓글이 삭제되었습니다.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage()); // 🔥 권한 문제일 경우 403 반환
+        }
     }
 
     /**
