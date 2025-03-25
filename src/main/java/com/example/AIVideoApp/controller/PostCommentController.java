@@ -1,5 +1,6 @@
 package com.example.AIVideoApp.controller;
 
+import com.example.AIVideoApp.dto.CommentRequestDTO;
 import com.example.AIVideoApp.dto.PostCommentDTO;
 import com.example.AIVideoApp.service.CommentLikeService;
 import com.example.AIVideoApp.service.PostCommentService;
@@ -29,10 +30,15 @@ public class PostCommentController {
     public ResponseEntity<PostCommentDTO> addComment(
             @PathVariable Integer postId,
             @RequestParam Integer userId,
-            @RequestParam String content,
-            @RequestParam(required = false) Integer parentCommentId) {
+            @RequestBody CommentRequestDTO commentRequest) {
 
-        PostCommentDTO commentDTO = postCommentService.addComment(postId, userId, content, parentCommentId);
+        // 나중엔 여기서 userId = jwtProvider.getUserIdFromToken(request) 처럼 바꾸면 됨
+        PostCommentDTO commentDTO = postCommentService.addComment(
+                postId,
+                userId,
+                commentRequest.getContent(),
+                commentRequest.getParentCommentId());
+
         return ResponseEntity.ok(commentDTO);
     }
 
@@ -72,12 +78,4 @@ public class PostCommentController {
         return ResponseEntity.ok("댓글 좋아요 취소 성공!");
     }
 
-    /**
-     * ✅ 댓글 좋아요 개수 조회
-     */
-    @GetMapping("{commentId}/likes/count")
-    public ResponseEntity<Long> getCommentLikeCount(@PathVariable Integer commentId) {
-        long likeCount = commentLikeService.countLikes(commentId);
-        return ResponseEntity.ok(likeCount);
-    }
 }

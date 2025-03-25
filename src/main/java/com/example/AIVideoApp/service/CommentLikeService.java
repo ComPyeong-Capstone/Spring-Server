@@ -63,9 +63,4 @@ public class CommentLikeService {
         commentLikeRepository.delete(commentLike);
     }
 
-    // 좋아요 개수 조회
-    public long countLikes(Integer commentId) {
-        return commentLikeRepository.countByComment_CommentId(commentId);
-    }
-
 }

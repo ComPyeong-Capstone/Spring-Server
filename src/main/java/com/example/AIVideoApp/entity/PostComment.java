@@ -37,8 +37,12 @@ public class PostComment {
     @Column(name = "Created_At")
     private LocalDateTime createdAt;
 
+    @Builder.Default
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentLike> likes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostComment> children = new ArrayList<>();
 
 }
 

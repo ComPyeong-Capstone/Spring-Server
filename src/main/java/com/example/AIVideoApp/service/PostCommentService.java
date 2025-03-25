@@ -10,6 +10,7 @@ import com.example.AIVideoApp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +42,7 @@ public class PostCommentService {
                 .post(post)
                 .content(content)
                 .parent(parentComment)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         PostComment savedComment = postCommentRepository.save(comment);
