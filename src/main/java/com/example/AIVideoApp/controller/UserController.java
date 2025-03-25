@@ -34,22 +34,25 @@ public class UserController {
     }
 
     // 로그인
-    @GetMapping("/login")  // ✅ GET -> POST 변경 (보안 강화)
+    @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> request) {
         try {
             String email = request.get("email");
             String password = request.get("password");
 
             if (email == null || password == null) {
-                return ResponseEntity.badRequest().body("이메일과 비밀번호를 입력해야 합니다."); // ❌ 400 에러 반환
+                return ResponseEntity.badRequest().body("이메일과 비밀번호를 입력해야 합니다.");
             }
 
             UserDTO userDTO = userService.loginUser(email, password);
-            return ResponseEntity.ok(userDTO);  // ✅ 성공 시 200 OK + UserDTO 반환
+
+            // 이후 JWT 토큰 발급 예정이라면 여기서 토큰 생성해서 반환
+            return ResponseEntity.ok(userDTO);
+
         } catch (EmailNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // ❌ 404 에러 반환
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (InvalidPasswordException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage()); // ❌ 401 에러 반환
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 
