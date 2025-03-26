@@ -10,6 +10,7 @@ import com.example.AIVideoApp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -81,12 +82,31 @@ public class PostService {
         postRepository.deleteById(postId);
     }
 
-    // 🔹 게시물 수정 (존재하는 게시물만 수정)
-    public Optional<PostDTO> updatePost(Integer postId, Post updatedPost) {
-        return postRepository.findById(postId).map(post -> {
-            post.setTitle(updatedPost.getTitle());
-            Post savedPost = postRepository.save(post);
-            return new PostDTO(savedPost); // ✅ 수정 후 DTO 변환
-        });
+    @Transactional
+    public Optional<PostDTO> updatePost(Integer postId, PostDTO dto) {
+        Optional<Post> optionalPost = postRepository.findById(postId);
+        if (optionalPost.isEmpty()) return Optional.empty();
+
+        Post post = optionalPost.get();
+
+        // 기존 데이터 수정
+        post.setTitle(dto.getTitle());
+        post.setVideoURL(dto.getVideoURL());
+
+        // 기존 해시태그 연결 삭제
+        post.getPostHashTags().clear();
+        postRepository.flush(); // 🔥 삭제 먼저 DB 반영
+
+        // 새로운 해시태그 매핑 추가
+        for (String tagName : dto.getHashtags()) {
+            HashTag hashTag = hashTagRepository.findByHashName(tagName)
+                    .orElseGet(() -> hashTagRepository.save(HashTag.builder().hashName(tagName).build()));
+
+            PostHashTag postHashTag = new PostHashTag(post, hashTag); // 생성자 필요
+            post.getPostHashTags().add(postHashTag);
+        }
+
+        postRepository.save(post);
+        return Optional.of(new PostDTO(post));
     }
 }

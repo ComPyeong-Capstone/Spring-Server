@@ -24,7 +24,7 @@ public class Notification {
 
     @Enumerated(EnumType.STRING)
     @Column(name="Noti_Type", nullable = false)
-    private NotificationType notiType; // 알림 유형 ("LIKE", "COMMENT")
+    private NotificationType notiType; // 알림 유형 ("LIKE", "COMMENT", "COMMENT_LIKE")
 
     @Builder.Default
     @Column(name="Noti_Read", nullable = false)

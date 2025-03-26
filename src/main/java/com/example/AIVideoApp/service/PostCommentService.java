@@ -10,6 +10,7 @@ import com.example.AIVideoApp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,37 +23,40 @@ public class PostCommentService {
     private final PostRepository postRepository;
 
     // 댓글 추가
-    public PostCommentDTO addComment(Integer postId, Integer userId, String content) {
+    public PostCommentDTO addComment(Integer postId, Integer userId, String content, Integer parentCommentId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        // ✅ 부모 댓글 가져오기 (대댓글일 경우)
+        PostComment parentComment = null;
+        if (parentCommentId != null) {
+            parentComment = postCommentRepository.findById(parentCommentId)
+                    .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+        }
 
         // ✅ PostComment 객체를 빌더 패턴으로 생성
         PostComment comment = PostComment.builder()
                 .user(user)
                 .post(post)
                 .content(content)
+                .parent(parentComment)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         PostComment savedComment = postCommentRepository.save(comment);
-        return new PostCommentDTO(savedComment);
+        return new PostCommentDTO(savedComment, userId);
     }
 
     // 특정 게시물의 댓글 조회
-    public List<PostCommentDTO> getCommentsByPostId(Integer postId) {
+    public List<PostCommentDTO> getCommentsByPostId(Integer postId, Integer currentUserId) {
         List<PostComment> comments = postCommentRepository.findByPost_PostId(postId);
-        return comments.stream().map(PostCommentDTO::new).collect(Collectors.toList());
-    }
 
-    /*
-    // 댓글 삭제
-    public void deleteComment(Integer commentId) {
-        if (!postCommentRepository.existsById(commentId)) {
-            throw new RuntimeException("Comment not found");
-        }
-        postCommentRepository.deleteById(commentId);
-    }*/
+        return comments.stream()
+                .map(comment -> new PostCommentDTO(comment, currentUserId)) // ✅ currentUserId 전달
+                .collect(Collectors.toList());
+    }
 
     public void deleteComment(Integer postId, Integer commentId, Integer UserId) {
         // 댓글 조회

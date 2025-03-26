@@ -12,7 +12,7 @@ public class NotificationDTO {
     private Integer senderId;    // 알림을 보낸 사용자
     private Integer receiverId;  // 알림을 받은 사용자
     private Integer postId;      // 관련 게시물 ID
-    private NotificationType notiType;         // 알림 유형 ("like", "comment")
+    private NotificationType notiType;         // 알림 유형
     private boolean notiRead;      // 읽음 여부
     private LocalDateTime notiTime; // 알림 생성 시간
 
