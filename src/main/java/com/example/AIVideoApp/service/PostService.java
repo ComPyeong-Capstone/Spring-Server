@@ -72,14 +72,16 @@ public class PostService {
     }
 
     // 🔹 게시물 삭제
-    public void deletePost(Integer postId) {
-        // 게시물이 존재하는지 확인
-        if (!postRepository.existsById(postId)) {
-            throw new EntityNotFoundException("삭제할 게시물이 존재하지 않습니다.");
+    public void deletePost(Integer postId, Integer userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("삭제할 게시물이 존재하지 않습니다."));
+
+        // 🔒 작성자 검증
+        if (!post.getUser().getUserId().equals(userId)) {
+            throw new SecurityException("작성자만 게시물을 삭제할 수 있습니다.");
         }
 
-        // 게시물 삭제
-        postRepository.deleteById(postId);
+        postRepository.delete(post);
     }
 
     @Transactional
