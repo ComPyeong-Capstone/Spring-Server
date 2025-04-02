@@ -1,5 +1,6 @@
 package com.example.AIVideoApp.controller;
 
+import com.example.AIVideoApp.config.JwtTokenProvider;
 import com.example.AIVideoApp.dto.UserDTO;
 import com.example.AIVideoApp.exception.EmailNotFoundException;
 import com.example.AIVideoApp.exception.InvalidPasswordException;
@@ -7,8 +8,10 @@ import com.example.AIVideoApp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -17,6 +20,7 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     // 회원가입
     @PostMapping
@@ -46,8 +50,15 @@ public class UserController {
 
             UserDTO userDTO = userService.loginUser(email, password);
 
-            // 이후 JWT 토큰 발급 예정이라면 여기서 토큰 생성해서 반환
-            return ResponseEntity.ok(userDTO);
+            // ✅ JwtTokenProvider를 사용해 토큰 생성
+            String token = jwtTokenProvider.createToken(userDTO.getUserId().toString());
+
+            // ✅ 토큰과 유저 정보를 함께 반환
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("user", userDTO);
+
+            return ResponseEntity.ok(response);
 
         } catch (EmailNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -58,7 +69,10 @@ public class UserController {
 
     // 프로필 이미지 설정
     @PutMapping("/profile-image")
-    public ResponseEntity<String> updateProfileImage(@RequestParam Integer userId, @RequestBody Map<String, String> request) {
+    public ResponseEntity<String> updateProfileImage(
+            @AuthenticationPrincipal Integer userId,
+            @RequestBody Map<String, String> request
+    ) {
         try {
             userService.updateProfileImage(userId, request.get("profileImageUrl"));
             return ResponseEntity.ok("프로필 이미지 변경 성공");
@@ -69,7 +83,10 @@ public class UserController {
 
     // 닉네임 설정
     @PutMapping("/nickname")
-    public ResponseEntity<String> updateNickname(@RequestParam Integer userId, @RequestBody Map<String, String> request) {
+    public ResponseEntity<String> updateNickname(
+            @AuthenticationPrincipal Integer userId,
+            @RequestBody Map<String, String> request
+    ) {
         try {
             userService.updateNickname(userId, request.get("newNickname"));
             return ResponseEntity.ok("닉네임 변경 성공");

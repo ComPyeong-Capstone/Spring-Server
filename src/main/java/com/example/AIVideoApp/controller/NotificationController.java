@@ -2,11 +2,11 @@ package com.example.AIVideoApp.controller;
 
 import com.example.AIVideoApp.dto.NotificationDTO;
 import com.example.AIVideoApp.dto.NotificationRequestDTO;
-import com.example.AIVideoApp.enums.NotificationType;
 import com.example.AIVideoApp.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,10 +20,13 @@ public class NotificationController {
 
     // 1️⃣ **알림 생성 (POST /notifications)**
     @PostMapping
-    public ResponseEntity<String> createNotification(@RequestBody NotificationRequestDTO request) {
+    public ResponseEntity<String> createNotification(
+            @AuthenticationPrincipal Integer senderId,
+            @RequestBody NotificationRequestDTO request
+    ) {
         try {
             notificationService.createNotification(
-                    request.getSenderId(),
+                    senderId,
                     request.getReceiverId(),
                     request.getPostId(),
                     request.getType()
@@ -36,7 +39,9 @@ public class NotificationController {
 
     // 2️⃣ **특정 사용자의 알림 목록 조회 (GET /notifications?userId={userId})**
     @GetMapping
-    public ResponseEntity<List<NotificationDTO>> getNotificationsByUser(@RequestParam Integer userId) {
+    public ResponseEntity<List<NotificationDTO>> getNotificationsByUser(
+            @AuthenticationPrincipal Integer userId
+    ) {
         return ResponseEntity.ok(notificationService.getNotificationsByUser(userId));
     }
 

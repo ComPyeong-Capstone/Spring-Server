@@ -7,6 +7,7 @@ import com.example.AIVideoApp.service.PostCommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +22,15 @@ public class PostCommentController {
 
     // 특정 게시물의 댓글 조회
     @GetMapping
-    public ResponseEntity<List<PostCommentDTO>> getComments(@PathVariable Integer postId, @RequestParam Integer currentUserId) {
+    public ResponseEntity<List<PostCommentDTO>> getComments(
+            @PathVariable Integer postId,
+            @AuthenticationPrincipal Integer userId // nullable
+    ) {
+        Integer currentUserId = null;
+        if (userId != null) {
+            currentUserId = userId;
+        }
+
         List<PostCommentDTO> comments = postCommentService.getCommentsByPostId(postId, currentUserId);
         return ResponseEntity.ok(comments);
     }
@@ -29,11 +38,10 @@ public class PostCommentController {
     // 댓글 추가
     @PostMapping
     public ResponseEntity<PostCommentDTO> addComment(
+            @AuthenticationPrincipal Integer userId,
             @PathVariable Integer postId,
-            @RequestParam Integer userId,
-            @RequestBody CommentRequestDTO commentRequest) {
-
-        // 나중엔 여기서 userId = jwtProvider.getUserIdFromToken(request) 처럼 바꾸면 됨
+            @RequestBody CommentRequestDTO commentRequest
+    ) {
         PostCommentDTO commentDTO = postCommentService.addComment(
                 postId,
                 userId,
@@ -46,14 +54,15 @@ public class PostCommentController {
     // 댓글 삭제
     @DeleteMapping("/{commentId}")
     public ResponseEntity<String> deleteComment(
+            @AuthenticationPrincipal Integer userId,
             @PathVariable Integer postId,
-            @PathVariable Integer commentId,
-            @RequestParam Integer userId) {
+            @PathVariable Integer commentId
+    ) {
         try {
             postCommentService.deleteComment(postId, commentId, userId);
             return ResponseEntity.ok("댓글이 삭제되었습니다.");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage()); // 🔥 권한 문제일 경우 403 반환
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }
     }
 
@@ -62,10 +71,10 @@ public class PostCommentController {
      */
     @PostMapping("/{commentId}/likes")
     public ResponseEntity<String> likeComment(
+            @AuthenticationPrincipal Integer userId,
             @PathVariable Integer postId,
-            @PathVariable Integer commentId,
-            @RequestParam Integer userId) {
-
+            @PathVariable Integer commentId
+    ) {
         commentLikeService.likeComment(userId, commentId);
         return ResponseEntity.ok("댓글 좋아요 성공!");
     }
@@ -75,10 +84,10 @@ public class PostCommentController {
      */
     @DeleteMapping("/{commentId}/likes")
     public ResponseEntity<String> unlikeComment(
+            @AuthenticationPrincipal Integer userId,
             @PathVariable Integer postId,
-            @PathVariable Integer commentId,
-            @RequestParam Integer userId) {
-
+            @PathVariable Integer commentId
+    ) {
         commentLikeService.unlikeComment(userId, commentId);
         return ResponseEntity.ok("댓글 좋아요 취소 성공!");
     }

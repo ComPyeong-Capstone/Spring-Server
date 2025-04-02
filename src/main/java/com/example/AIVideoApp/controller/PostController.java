@@ -6,6 +6,7 @@ import com.example.AIVideoApp.service.PostLikeService;
 import com.example.AIVideoApp.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -21,14 +22,18 @@ public class PostController {
     private final PostService postService;
     private final PostLikeService postLikeService;
 
+    // 게시물 등록
     @PostMapping
-    public ResponseEntity<String> createPost(@RequestBody PostDTO post) {
-        System.out.println("createPost() Called");
+    public ResponseEntity<String> createPost(
+            @AuthenticationPrincipal Integer userId,
+            @RequestBody PostDTO post
+    ) {
         try {
-            postService.createPost(post); // ✅ 게시물 저장
+            post.setUserId(userId);
+            postService.createPost(post);
             return ResponseEntity.ok("게시물이 성공적으로 등록되었습니다.");
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage()); // ✅ 예외 메시지 반환
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -38,10 +43,12 @@ public class PostController {
         return ResponseEntity.ok(postService.getAllPosts()); // ✅ Post → PostDTO 반환
     }
 
-    // 3️⃣ 특정 사용자의 게시물 조회 (GET /posts?userId={userId})
-    @GetMapping(params = "userId")
-    public ResponseEntity<List<PostDTO>> getPostsByUser(@RequestParam Integer userId) {
-        return ResponseEntity.ok(postService.getPostsByUser(userId)); // ✅ Post → PostDTO 반환
+    // 3️⃣ 특정 사용자의 게시물 조회
+    @GetMapping("/mine")
+    public ResponseEntity<List<PostDTO>> getMyPosts(
+            @AuthenticationPrincipal Integer userId
+    ) {
+        return ResponseEntity.ok(postService.getPostsByUser(userId));
     }
 
     // 4️⃣ 특정 해시태그를 가진 게시물 조회 (GET /posts?hashtag={hashtag})
@@ -50,11 +57,14 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostsByHashTag(hashtag)); // ✅ Post → PostDTO 반환
     }
 
-    // 5️⃣ 게시물 삭제 (DELETE /posts/{postId})
+    // 5️⃣ 게시물 삭제
     @DeleteMapping("/{postId}")
-    public ResponseEntity<String> deletePost(@PathVariable Integer postId) {
+    public ResponseEntity<String> deletePost(
+            @AuthenticationPrincipal Integer userId,
+            @PathVariable Integer postId
+    ) {
         try {
-            postService.deletePost(postId);
+            postService.deletePost(postId, userId);
             return ResponseEntity.ok("게시물이 삭제되었습니다.");
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -63,22 +73,32 @@ public class PostController {
 
     // 6️⃣ 게시물 수정 (PUT /posts/{postId})
     @PutMapping("/{postId}")
-    public ResponseEntity<PostDTO> updatePost(@PathVariable Integer postId, @RequestBody PostDTO updatedPost) {
-        Optional<PostDTO> updated = postService.updatePost(postId, updatedPost); // ✅ Post → PostDTO 반환
-        return updated.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<PostDTO> updatePost(
+            @AuthenticationPrincipal Integer userId,
+            @PathVariable Integer postId,
+            @RequestBody PostDTO updatedPost
+    ) {
+        updatedPost.setUserId(userId);
+        Optional<PostDTO> updated = postService.updatePost(postId, updatedPost);
+        return updated.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // 게시글 좋아요 추가
     @PostMapping("/{postId}/likes")
-    public ResponseEntity<String> likePost(@PathVariable Integer postId, @RequestParam Integer userId) {
+    public ResponseEntity<String> likePost(
+            @AuthenticationPrincipal Integer userId,
+            @PathVariable Integer postId
+    ) {
         String message = postLikeService.likePost(postId, userId);
         return ResponseEntity.ok(message);
     }
 
     // 게시글 좋아요 취소
     @DeleteMapping("/{postId}/likes")
-    public ResponseEntity<String> unlikePost(@PathVariable Integer postId, @RequestParam Integer userId) {
+    public ResponseEntity<String> unlikePost(
+            @AuthenticationPrincipal Integer userId,
+            @PathVariable Integer postId
+    ) {
         String message = postLikeService.unlikePost(postId, userId);
         return ResponseEntity.ok(message);
     }
