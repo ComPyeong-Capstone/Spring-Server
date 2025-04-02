@@ -41,6 +41,7 @@ public class PostComment {
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentLike> likes = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostComment> children = new ArrayList<>();
 

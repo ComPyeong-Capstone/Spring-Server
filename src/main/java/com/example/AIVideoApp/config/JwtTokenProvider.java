@@ -1,9 +1,11 @@
 package com.example.AIVideoApp.config;
 
 import io.jsonwebtoken.*;
+import java.security.Key;
+
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 
 import java.util.Date;
 
@@ -18,33 +20,35 @@ public class JwtTokenProvider {
 
     // ✅ 토큰 생성 - userId를 subject에 저장
     public String createToken(String userId) {
+        Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
         return Jwts.builder()
                 .setSubject(userId)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(SignatureAlgorithm.HS256, secretKey.getBytes())
+                .signWith(key, SignatureAlgorithm.HS256)  // ✅ 최신 방식
                 .compact();
     }
 
     // ✅ 토큰에서 userId 추출 (String → Integer로 변환)
     public Integer getUserIdFromToken(String token) {
         try {
-            String subject = Jwts.parser()
+            String subject = Jwts.parserBuilder()
                     .setSigningKey(secretKey.getBytes())
+                    .build()
                     .parseClaimsJws(token)
                     .getBody()
                     .getSubject();
-            return Integer.parseInt(subject); // 💡 예외 대비 try-catch 가능
+            return Integer.parseInt(subject);
         } catch (JwtException | IllegalArgumentException e) {
             throw new RuntimeException("유효하지 않은 토큰입니다.");
         }
     }
 
-    // ✅ 토큰 유효성 검사
     public boolean validateToken(String token) {
         try {
-            Jwts.parser()
+            Jwts.parserBuilder()
                     .setSigningKey(secretKey.getBytes())
+                    .build()
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
