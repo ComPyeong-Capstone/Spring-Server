@@ -79,7 +79,7 @@ public class PostController {
             @RequestBody PostDTO updatedPost
     ) {
         updatedPost.setUserId(userId);
-        Optional<PostDTO> updated = postService.updatePost(postId, updatedPost);
+        Optional<PostDTO> updated = postService.updatePost(postId, userId, updatedPost);
         return updated.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
