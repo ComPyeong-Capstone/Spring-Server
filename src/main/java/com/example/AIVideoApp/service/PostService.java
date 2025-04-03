@@ -85,11 +85,16 @@ public class PostService {
     }
 
     @Transactional
-    public Optional<PostDTO> updatePost(Integer postId, PostDTO dto) {
+    public Optional<PostDTO> updatePost(Integer postId, Integer userId, PostDTO dto) {
         Optional<Post> optionalPost = postRepository.findById(postId);
         if (optionalPost.isEmpty()) return Optional.empty();
 
         Post post = optionalPost.get();
+
+        // 🔒 작성자 검증
+        if (!post.getUser().getUserId().equals(userId)) {
+            throw new SecurityException("작성자만 게시물을 수정할 수 있습니다.");
+        }
 
         // 기존 데이터 수정
         post.setTitle(dto.getTitle());
