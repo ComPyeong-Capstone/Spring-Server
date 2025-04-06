@@ -39,6 +39,10 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EmailNotFoundException("이메일이 존재하지 않습니다.")); // ✅ 사용자 정의 예외로 변경
 
+        if ("SOCIAL_LOGIN_USER".equals(user.getPassword())) {
+            throw new RuntimeException("이 계정은 소셜 로그인 전용입니다. 이메일/비밀번호 로그인을 사용할 수 없습니다.");
+        }
+
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new InvalidPasswordException("비밀번호가 일치하지 않습니다."); // ✅ 사용자 정의 예외로 변경
         }
