@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.AIVideoApp.exception.EmailNotFoundException;
 import com.example.AIVideoApp.exception.InvalidPasswordException;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +18,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final S3Uploader s3Uploader;
 
     public String encodePassword(String password) {
         return passwordEncoder.encode(password);
@@ -55,6 +58,20 @@ public class UserService {
         user.setProfileImage(profileImageUrl);
         userRepository.save(user); // ✅ 저장만 수행
     }
+
+    // ✅ 수정된 부분: 파일 업로드 + 프로필 설정 메서드 추가
+    @Transactional
+    public String uploadProfileImage(Integer userId, MultipartFile file) throws IOException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        String s3Url = s3Uploader.upload(file, "user-profiles"); // user-profiles 폴더에 저장
+        user.setProfileImage(s3Url);
+        userRepository.save(user);
+
+        return s3Url;
+    }
+
 
     // 🔹 닉네임 변경
     @Transactional
