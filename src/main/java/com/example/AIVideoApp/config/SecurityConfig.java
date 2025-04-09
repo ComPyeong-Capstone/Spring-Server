@@ -31,7 +31,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // ✅ 회원가입 & 로그인은 누구나 허용
-                        .requestMatchers(HttpMethod.POST, "/users", "/users/login", "/oauth/google/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users", "/users/login", "/oauth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/oauth/**").permitAll()
 
                         // ✅ 게시물 전체 조회, 특정 해시태그로 조회, 좋아요 유저 조회는 허용
                         .requestMatchers(HttpMethod.GET, "/posts", "/posts/**/likes/users").permitAll()
