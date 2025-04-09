@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 public class NotificationDTO {
     private Integer notiId;
-    private Integer senderId;    // 알림을 보낸 사용자
+    private UserDTO sender;    // 알림을 보낸 사용자
     private Integer receiverId;  // 알림을 받은 사용자
     private Integer postId;      // 관련 게시물 ID
     private NotificationType notiType;         // 알림 유형
@@ -19,7 +19,7 @@ public class NotificationDTO {
     // **Notification 엔티티를 DTO로 변환하는 생성자**
     public NotificationDTO(Notification notification) {
         this.notiId = notification.getNotiId();
-        this.senderId = notification.getSender().getUserId();
+        this.sender = new UserDTO(notification.getSender());
         this.receiverId = notification.getReceiver().getUserId();
         this.postId = notification.getPost().getPostId();
         this.notiType = notification.getNotiType();

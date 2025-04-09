@@ -10,12 +10,10 @@ public class UserDTO {
     private final Integer userId;
     private final String userName;
     private final String profileImage;
-    private final String email;
 
     public UserDTO(User user) {
         this.userId = user.getUserId();
         this.userName = user.getUserName();
         this.profileImage = user.getProfileImage();
-        this.email = user.getEmail();
     }
 }

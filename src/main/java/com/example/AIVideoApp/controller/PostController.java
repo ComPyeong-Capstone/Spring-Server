@@ -29,7 +29,7 @@ public class PostController {
             @RequestBody PostDTO post
     ) {
         try {
-            post.setUserId(userId);
+            post.setAuthor(new UserDTO(userId, null, null));
             postService.createPost(post);
             return ResponseEntity.ok("게시물이 성공적으로 등록되었습니다.");
         } catch (RuntimeException e) {
@@ -78,7 +78,7 @@ public class PostController {
             @PathVariable Integer postId,
             @RequestBody PostDTO updatedPost
     ) {
-        updatedPost.setUserId(userId);
+        updatedPost.setAuthor(new UserDTO(userId, null, null));
         Optional<PostDTO> updated = postService.updatePost(postId, userId, updatedPost);
         return updated.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
