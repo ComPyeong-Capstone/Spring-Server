@@ -4,13 +4,15 @@ import com.example.AIVideoApp.dto.PostDTO;
 import com.example.AIVideoApp.dto.UserDTO;
 import com.example.AIVideoApp.service.PostLikeService;
 import com.example.AIVideoApp.service.PostService;
+import com.example.AIVideoApp.service.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
-
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,19 +23,38 @@ public class PostController {
 
     private final PostService postService;
     private final PostLikeService postLikeService;
+    private final S3Uploader s3Uploader; // 👈 추가
+
 
     // 게시물 등록
+//    @PostMapping
+//    public ResponseEntity<String> createPost(
+//            @AuthenticationPrincipal Integer userId,
+//            @RequestBody PostDTO post
+//    ) {
+//        try {
+//            post.setUserId(userId);
+//            postService.createPost(post);
+//            return ResponseEntity.ok("게시물이 성공적으로 등록되었습니다.");
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//    }
+
     @PostMapping
-    public ResponseEntity<String> createPost(
+    public ResponseEntity<PostDTO> createPostWithVideoFile(
             @AuthenticationPrincipal Integer userId,
-            @RequestBody PostDTO post
+            @RequestPart("postDTO") PostDTO postDTO,
+            @RequestPart("videoFile") MultipartFile videoFile
     ) {
         try {
-            post.setUserId(userId);
-            postService.createPost(post);
-            return ResponseEntity.ok("게시물이 성공적으로 등록되었습니다.");
+            postDTO.setUserId(userId); // 인증된 사용자 ID 세팅
+            PostDTO savedPost = postService.createPost(postDTO, videoFile, s3Uploader);
+            return ResponseEntity.ok(savedPost); // 저장된 게시글 정보 반환
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
