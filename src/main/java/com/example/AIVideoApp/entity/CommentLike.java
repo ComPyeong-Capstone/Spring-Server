@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "Comment_Like", uniqueConstraints = {
+@Table(name = "comment_like", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"user_id", "comment_id"})
 })
 public class CommentLike {

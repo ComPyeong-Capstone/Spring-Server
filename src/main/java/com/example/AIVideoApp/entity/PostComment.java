@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "Post_Comment")
+@Table(name = "post_comment")
 public class PostComment {
 
     @Id
