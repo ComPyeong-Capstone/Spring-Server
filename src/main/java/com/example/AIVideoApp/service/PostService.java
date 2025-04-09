@@ -29,7 +29,7 @@ public class PostService {
     public void createPost(PostDTO postDTO) {
         Post post = new Post();
         post.setTitle(postDTO.getTitle());
-        post.setUser(userRepository.findById(postDTO.getUserId())
+        post.setUser(userRepository.findById(postDTO.getAuthor().getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."))); // ✅ 예외 메시지 수정
         post.setVideoURL(postDTO.getVideoURL());
         post.setUpdateTime(LocalDateTime.now());
@@ -50,7 +50,7 @@ public class PostService {
 
     // 🔹 전체 게시물 조회 (DTO 반환)
     public List<PostDTO> getAllPosts() {
-        return postRepository.findAll()
+        return postRepository.findAllWithUser()
                 .stream()
                 .map(PostDTO::new) // ✅ 한 줄로 DTO 변환
                 .collect(Collectors.toList());
@@ -66,7 +66,7 @@ public class PostService {
 
     // 🔹 특정 해시태그의 게시물 조회 (DB에서 쿼리문 통해 직접 조회)
     public List<PostDTO> getPostsByHashTag(String hashTag) {
-        return postRepository.findByHashTag(hashTag).stream()
+        return postRepository.findByHashTagWithUser(hashTag).stream()
                 .map(PostDTO::new) // ✅ Post → PostDTO 변환
                 .collect(Collectors.toList());
     }

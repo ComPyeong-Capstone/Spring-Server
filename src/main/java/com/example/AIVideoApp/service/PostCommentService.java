@@ -51,7 +51,7 @@ public class PostCommentService {
 
     // 특정 게시물의 댓글 조회
     public List<PostCommentDTO> getCommentsByPostId(Integer postId, Integer currentUserId) {
-        List<PostComment> comments = postCommentRepository.findByPost_PostId(postId);
+        List<PostComment> comments = postCommentRepository.findWithUserByPostId(postId);
 
         return comments.stream()
                 .map(comment -> new PostCommentDTO(comment, currentUserId)) // ✅ currentUserId 전달

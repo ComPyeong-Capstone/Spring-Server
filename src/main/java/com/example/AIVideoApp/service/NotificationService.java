@@ -45,7 +45,7 @@ public class NotificationService {
 
     // 2️⃣ 특정 사용자의 모든 알림 목록 조회 (최신순)
     public List<NotificationDTO> getNotificationsByUser(Integer receiverId) {
-        return notificationRepository.findByReceiver_UserIdOrderByNotiTimeDesc(receiverId)
+        return notificationRepository.findWithSenderByReceiverId(receiverId)
                 .stream()
                 .map(NotificationDTO::new)
                 .collect(Collectors.toList());

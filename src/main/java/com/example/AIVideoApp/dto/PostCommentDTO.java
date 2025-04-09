@@ -8,17 +8,16 @@ import java.time.LocalDateTime;
 @Data
 public class PostCommentDTO {
     private final Integer commentId;
-    private final Integer userId;
     private final Integer postId;
     private final String content;
     private final Integer parentCommentID;
     private final LocalDateTime createdAt;
     private final int likeCount;
     private final boolean likedByMe;
+    private final UserDTO author;
 
     public PostCommentDTO(PostComment comment, Integer currentUserId){
         this.commentId = comment.getCommentId();
-        this.userId = comment.getUser().getUserId();
         this.postId = comment.getPost().getPostId();
         this.content = comment.getContent();
         this.parentCommentID = comment.getParent() != null
@@ -28,5 +27,6 @@ public class PostCommentDTO {
         this.likeCount = comment.getLikes().size();
         this.likedByMe = comment.getLikes().stream()
                 .anyMatch(like -> like.getUser().getUserId().equals(currentUserId));
+        this.author = new UserDTO(comment.getUser());
     }
 }
