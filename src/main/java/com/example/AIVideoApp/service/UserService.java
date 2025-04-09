@@ -49,17 +49,7 @@ public class UserService {
     }
 
 
-    // 🔹 프로필 이미지 설정
-    @Transactional
-    public void updateProfileImage(Integer userId, String profileImageUrl) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-
-        user.setProfileImage(profileImageUrl);
-        userRepository.save(user); // ✅ 저장만 수행
-    }
-
-    // ✅ 수정된 부분: 파일 업로드 + 프로필 설정 메서드 추가
+    // 🔹 프로필 이미지 설정, 파일 업로드 + 프로필 설정 메서드 추가
     @Transactional
     public String uploadProfileImage(Integer userId, MultipartFile file) throws IOException {
         User user = userRepository.findById(userId)

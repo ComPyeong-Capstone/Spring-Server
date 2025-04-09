@@ -68,22 +68,9 @@ public class UserController {
         }
     }
 
-    // 프로필 이미지 설정
-    @PutMapping("/profile-image")
-    public ResponseEntity<String> updateProfileImage(
-            @AuthenticationPrincipal Integer userId,
-            @RequestBody Map<String, String> request
-    ) {
-        try {
-            userService.updateProfileImage(userId, request.get("profileImageUrl"));
-            return ResponseEntity.ok("프로필 이미지 변경 성공");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 
     // ✅ 수정된 부분: 파일 업로드로 프로필 이미지 설정하는 새로운 API 추가
-    @PutMapping("/profile-image/upload")
+    @PutMapping("/profile-image")
     public ResponseEntity<String> uploadProfileImage(
             @AuthenticationPrincipal Integer userId,
             @RequestParam("file") MultipartFile file
