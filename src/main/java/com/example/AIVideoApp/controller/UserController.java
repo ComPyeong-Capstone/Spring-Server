@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,19 +68,22 @@ public class UserController {
         }
     }
 
-    // 프로필 이미지 설정
+
+    // ✅ 수정된 부분: 파일 업로드로 프로필 이미지 설정하는 새로운 API 추가
     @PutMapping("/profile-image")
-    public ResponseEntity<String> updateProfileImage(
+    public ResponseEntity<String> uploadProfileImage(
             @AuthenticationPrincipal Integer userId,
-            @RequestBody Map<String, String> request
+            @RequestParam("file") MultipartFile file
     ) {
         try {
-            userService.updateProfileImage(userId, request.get("profileImageUrl"));
-            return ResponseEntity.ok("프로필 이미지 변경 성공");
-        } catch (RuntimeException e) {
+            String imageUrl = userService.uploadProfileImage(userId, file);
+            return ResponseEntity.ok(imageUrl); // 업로드된 이미지 URL 반환
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+
 
     // 닉네임 설정
     @PutMapping("/nickname")

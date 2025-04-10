@@ -11,7 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -26,15 +27,19 @@ public class PostService {
     private final HashTagRepository hashTagRepository;
 
     // 🔹 게시물 등록 (DTO 반환)
-    public void createPost(PostDTO postDTO) {
+    @Transactional
+    public PostDTO createPost(PostDTO postDTO, MultipartFile videoFile, S3Uploader s3Uploader) throws IOException {
         Post post = new Post();
         post.setTitle(postDTO.getTitle());
         post.setUser(userRepository.findById(postDTO.getAuthor().getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."))); // ✅ 예외 메시지 수정
-        post.setVideoURL(postDTO.getVideoURL());
         post.setUpdateTime(LocalDateTime.now());
 
-        // 🔹 해시태그 처리
+        // ✅ S3에 파일 업로드
+        String videoUrl = s3Uploader.upload(videoFile, "post-videos");
+        post.setVideoURL(videoUrl);
+
+        // ✅ 해시태그 연결
         List<PostHashTag> postHashTags = postDTO.getHashtags().stream().map(tagName -> {
             HashTag tag = hashTagRepository.findByHashName(tagName)
                     .orElseGet(() -> hashTagRepository.save(HashTag.builder().hashName(tagName).build()));
@@ -46,6 +51,8 @@ public class PostService {
 
         post.setPostHashTags(postHashTags);
         postRepository.save(post);
+
+        return new PostDTO(post); // 저장된 Post → PostDTO로 변환해서 반환
     }
 
     // 🔹 전체 게시물 조회 (DTO 반환)
