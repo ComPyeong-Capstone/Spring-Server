@@ -89,7 +89,7 @@ public class OAuthController {
         String email = request.get("email");
         String nickname = request.get("nickname");
 
-        if (userRepository.findByUserName(nickname).isPresent()) {
+        if (userRepository.findByUsername(nickname).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 사용 중인 닉네임입니다.");
         }
 
@@ -170,7 +170,7 @@ public class OAuthController {
         String email = request.get("email");
         String nickname = request.get("nickname");
 
-        if (userRepository.findByUserName(nickname).isPresent()) {
+        if (userRepository.findByUsername(nickname).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 사용 중인 닉네임입니다.");
         }
 
