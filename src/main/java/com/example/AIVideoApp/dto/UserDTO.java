@@ -13,7 +13,7 @@ public class UserDTO {
 
     public UserDTO(User user) {
         this.userId = user.getUserId();
-        this.userName = user.getUserName();
+        this.userName = user.getUsername();
         this.profileImage = user.getProfileImage();
     }
 }

@@ -77,7 +77,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-        user.setUserName(newNickname);
+        user.setUsername(newNickname);
         userRepository.save(user); // ✅ 저장만 수행
     }
 

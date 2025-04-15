@@ -16,7 +16,7 @@ public class User {
     private Integer userId;
 
     @Column(nullable = false)
-    private String userName;
+    private String username;
 
     private String profileImage;
 
@@ -38,7 +38,7 @@ public class User {
 
     // ✅ 필요한 필드만 받는 생성자 직접 추가
     public User(String userName, String email, String password, String profileImage) {
-        this.userName = userName;
+        this.username = userName;
         this.email = email;
         this.password = password;
         this.profileImage = profileImage;
