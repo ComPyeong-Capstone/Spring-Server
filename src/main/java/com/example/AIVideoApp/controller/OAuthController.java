@@ -99,7 +99,7 @@ public class OAuthController {
 
         User user = new User();
         user.setEmail(email);
-        user.setUserName(nickname);
+        user.setUsername(nickname);
         user.setPassword("SOCIAL_LOGIN_USER");
         userRepository.save(user);
 
@@ -180,7 +180,7 @@ public class OAuthController {
 
         User user = new User();
         user.setEmail(email);
-        user.setUserName(nickname);
+        user.setUsername(nickname);
         user.setPassword("SOCIAL_LOGIN_USER");
         userRepository.save(user);
 
