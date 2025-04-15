@@ -30,7 +30,7 @@ public class UserService {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new RuntimeException("이미 존재하는 이메일입니다.");
         }
-        if (userRepository.findByUserName(userName).isPresent()) {
+        if (userRepository.findByUsername(userName).isPresent()) {
             throw new RuntimeException("이미 존재하는 닉네임입니다.");
         }
         User user = new User(userName, email, passwordEncoder.encode(password), null);
@@ -70,7 +70,7 @@ public class UserService {
     // 🔹 닉네임 변경
     @Transactional
     public void updateNickname(Integer userId, String newNickname) {
-        if (userRepository.findByUserName(newNickname).isPresent()) {
+        if (userRepository.findByUsername(newNickname).isPresent()) {
             throw new RuntimeException("이미 존재하는 닉네임입니다.");
         }
 
