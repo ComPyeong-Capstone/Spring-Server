@@ -25,6 +25,7 @@ public class S3Uploader {
     @Value("${cloud.aws.region.static}") // ✅ region 주입
     private String region;
 
+    // ✅ [1] 기존 MultipartFile 업로드
     public String upload(MultipartFile file, String dirName) throws IOException {
         String fileName = dirName + "/" + UUID.randomUUID() + "_" + file.getOriginalFilename(); // UUID 고유화
 
@@ -44,6 +45,29 @@ public class S3Uploader {
 
         } catch (S3Exception e) {
             throw new RuntimeException("S3 파일 업로드 실패: " + e.awsErrorDetails().errorMessage());
+        }
+    }
+
+    // ✅ [2] byte[] 업로드용 오버로딩 메서드 (FastAPI 썸네일용)
+    public String upload(byte[] bytes, String dirName, String extension) {
+        String fileName = dirName + "/" + UUID.randomUUID() + "." + extension;
+
+        try {
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(fileName)
+                    .contentType("image/" + extension)
+                    .build();
+
+            s3Client.putObject(
+                    putObjectRequest,
+                    RequestBody.fromBytes(bytes)
+            );
+
+            return getFileUrl(fileName);
+
+        } catch (S3Exception e) {
+            throw new RuntimeException("S3 썸네일 업로드 실패: " + e.awsErrorDetails().errorMessage());
         }
     }
 

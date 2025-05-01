@@ -1,7 +1,6 @@
 package com.example.AIVideoApp.dto;
 
 import com.example.AIVideoApp.entity.Post;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Getter@Setter
 @NoArgsConstructor
-public class PostDTO {
+public class PostVideoDTO {
     private Integer postId;
     private String title;
     private LocalDateTime updateTime;
@@ -23,7 +22,7 @@ public class PostDTO {
     private UserDTO author;
 
     // ✅ `Post` 엔티티를 받아서 `PostDTO`로 변환하는 생성자 추가
-    public PostDTO(Post post) {
+    public PostVideoDTO(Post post) {
         this.postId = post.getPostId();
         this.title = post.getTitle();
         this.updateTime = post.getUpdateTime();
