@@ -28,6 +28,9 @@ public class Post {
     private java.time.LocalDateTime updateTime;
 
     @Column(length = 2083)
+    private String thumbnailURL;
+
+    @Column(length = 2083)
     private String videoURL;
 
     // 관계 설정
