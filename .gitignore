@@ -42,3 +42,5 @@ src/main/resources/application.properties
 
 # macOS Finder에서 생성하는 .DS_Store 파일 무시
 .DS_Store
+
+app.log
