@@ -34,6 +34,8 @@ public class UserService {
             throw new RuntimeException("이미 존재하는 닉네임입니다.");
         }
         User user = new User(userName, email, passwordEncoder.encode(password), null);
+        String s3Url = s3Uploader.getFileUrl("user-profiles/basic.jpeg");
+        user.setProfileImage(s3Url);
         userRepository.save(user); // 🔥 DTO 반환 없이 저장만 수행
     }
 
