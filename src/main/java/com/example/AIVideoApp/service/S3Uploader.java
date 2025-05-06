@@ -71,7 +71,7 @@ public class S3Uploader {
         }
     }
 
-    private String getFileUrl(String fileName) {
+    public String getFileUrl(String fileName) {
         return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + fileName; // ✅ region 직접 사용
     }
 }
