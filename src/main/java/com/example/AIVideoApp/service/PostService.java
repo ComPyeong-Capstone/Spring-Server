@@ -109,16 +109,19 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    // 🔹 게시물 수정 (메시지 반환)
     @Transactional
-    public Optional<PostVideoDTO> updatePost(Integer postId, Integer userId, PostVideoDTO dto) {
+    public String updatePost(Integer postId, Integer userId, PostVideoDTO dto) {
         Optional<Post> optionalPost = postRepository.findById(postId);
-        if (optionalPost.isEmpty()) return Optional.empty();
+        if (optionalPost.isEmpty()) {
+            return "게시물 수정에 실패하였습니다: 게시물을 찾을 수 없습니다.";
+        }
 
         Post post = optionalPost.get();
 
         // 🔒 작성자 검증
         if (!post.getUser().getUserId().equals(userId)) {
-            throw new SecurityException("작성자만 게시물을 수정할 수 있습니다.");
+            return "게시물 수정에 실패하였습니다: 작성자만 수정할 수 있습니다.";
         }
 
         // 기존 데이터 수정
@@ -133,12 +136,11 @@ public class PostService {
         for (String tagName : dto.getHashtags()) {
             HashTag hashTag = hashTagRepository.findByHashName(tagName)
                     .orElseGet(() -> hashTagRepository.save(HashTag.builder().hashName(tagName).build()));
-
             PostHashTag postHashTag = new PostHashTag(post, hashTag); // 생성자 필요
             post.getPostHashTags().add(postHashTag);
         }
 
         postRepository.save(post);
-        return Optional.of(new PostVideoDTO(post));
+        return "게시물 수정이 완료되었습니다.";
     }
 }

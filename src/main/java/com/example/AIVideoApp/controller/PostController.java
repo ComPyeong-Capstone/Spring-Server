@@ -90,14 +90,20 @@ public class PostController {
 
     // 6️⃣ 게시물 수정 (PUT /posts/{postId})
     @PutMapping("/{postId}")
-    public ResponseEntity<PostVideoDTO> updatePost(
+    public ResponseEntity<String> updatePost(
             @AuthenticationPrincipal Integer userId,
             @PathVariable Integer postId,
             @RequestBody PostVideoDTO updatedPost
     ) {
         updatedPost.setAuthor(new UserDTO(userId, null, null));
-        Optional<PostVideoDTO> updated = postService.updatePost(postId, userId, updatedPost);
-        return updated.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        String resultMessage = postService.updatePost(postId, userId, updatedPost);
+
+        // 메시지 내용에 따라 상태 코드 유연하게 처리 가능
+        if (resultMessage.contains("완료")) {
+            return ResponseEntity.ok(resultMessage);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultMessage);
+        }
     }
 
     // 게시글 좋아요 추가
