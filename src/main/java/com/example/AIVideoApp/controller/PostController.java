@@ -30,21 +30,18 @@ public class PostController {
 
     // 게시물 등록
     @PostMapping
-    public ResponseEntity<PostVideoDTO> createPost(
+    public ResponseEntity<String> createPost(
             @AuthenticationPrincipal Integer userId,
-            @RequestPart("postDTO") PostCreateDTO postDTO,
-            @RequestPart("videoFile") MultipartFile videoFile
+            @RequestBody PostCreateDTO postDTO
     ) {
         try {
             postDTO.setUserId(userId);
-            PostVideoDTO savedPost = postService.createPost(postDTO, videoFile, s3Uploader);
-            return ResponseEntity.ok(savedPost);// 저장된 게시글 정보 반환
-        } catch (IOException e) {
-            e.printStackTrace(); // ← 로그 출력
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            postService.createPost(postDTO, postDTO.getVideoURL());
+            return ResponseEntity.ok("게시물이 성공적으로 등록되었습니다.");
         } catch (RuntimeException e) {
-            e.printStackTrace(); // ← 반드시 로그 찍어야 디버깅 가능
-            return ResponseEntity.badRequest().body(null); // 또는 .body(e.getMessage()) 로 원인 보기
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("영상 업로드 중 오류가 발생했습니다.");
         }
     }
 
