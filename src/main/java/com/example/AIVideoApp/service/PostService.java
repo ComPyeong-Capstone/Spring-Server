@@ -16,10 +16,14 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.mock.web.MockMultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -29,41 +33,34 @@ public class PostService {
     private final UserRepository userRepository;
     private final HashTagRepository hashTagRepository;
     private final FastApiClient fastApiClient;
+    private final S3Uploader s3Uploader;
 
     // 🔹 게시물 등록 (DTO 반환)
     @Transactional
-    public PostVideoDTO createPost(PostCreateDTO postDTO, MultipartFile videoFile, S3Uploader s3Uploader) throws IOException {
+    public void createPost(PostCreateDTO postDTO, String videoUrlFromFastAPI) throws IOException {
+        MultipartFile videoFile = downloadVideoFromUrl(videoUrlFromFastAPI);
+
         Post post = new Post();
         post.setTitle(postDTO.getTitle());
         post.setUser(userRepository.findById(postDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."))); // ✅ 예외 메시지 수정
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다.")));
         post.setUpdateTime(LocalDateTime.now());
 
-        // 🔸 1. FastAPI 서버에 영상 전송 → 썸네일 byte[] 응답
-        byte[] thumbnailBytes = fastApiClient.requestThumbnail(videoFile); // 🔥 추가 클래스 필요
-
-        // 🔸 2. 썸네일 byte[] → S3 업로드
+        byte[] thumbnailBytes = fastApiClient.requestThumbnail(videoFile);
         String thumbnailUrl = s3Uploader.upload(thumbnailBytes, "post-thumbnails", "jpg");
+        String s3VideoUrl = s3Uploader.upload(videoFile, "post-videos");
+
         post.setThumbnailURL(thumbnailUrl);
+        post.setVideoURL(s3VideoUrl);
 
-        // 🔸 3. 영상 → S3 업로드
-        String videoUrl = s3Uploader.upload(videoFile, "post-videos");
-        post.setVideoURL(videoUrl);
-
-        // ✅ 해시태그 연결
         List<PostHashTag> postHashTags = postDTO.getHashtags().stream().map(tagName -> {
             HashTag tag = hashTagRepository.findByHashName(tagName)
                     .orElseGet(() -> hashTagRepository.save(HashTag.builder().hashName(tagName).build()));
-            return PostHashTag.builder()
-                    .post(post)
-                    .hashTag(tag)
-                    .build();
+            return PostHashTag.builder().post(post).hashTag(tag).build();
         }).collect(Collectors.toList());
 
         post.setPostHashTags(postHashTags);
         postRepository.save(post);
-
-        return new PostVideoDTO(post); // 저장된 Post → PostDTO로 변환해서 반환
     }
 
     // 🔹 전체 게시물 조회 (DTO 반환)
@@ -142,5 +139,17 @@ public class PostService {
 
         postRepository.save(post);
         return "게시물 수정이 완료되었습니다.";
+    }
+
+    private MultipartFile downloadVideoFromUrl(String fileUrl) throws IOException {
+        URL url = new URL(fileUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+
+        String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+        try (InputStream inputStream = connection.getInputStream()) {
+            byte[] fileBytes = inputStream.readAllBytes();
+            return new MockMultipartFile(fileName, fileName, "video/mp4", fileBytes);
+        }
     }
 }
