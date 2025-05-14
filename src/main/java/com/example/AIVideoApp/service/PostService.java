@@ -35,11 +35,37 @@ public class PostService {
     private final FastApiClient fastApiClient;
     private final S3Uploader s3Uploader;
 
-    // 🔹 게시물 등록 (DTO 반환)
+    // 🔹 게시물 등록 (URL 기반)
     @Transactional
     public void createPost(PostCreateDTO postDTO, String videoUrlFromFastAPI) throws IOException {
         MultipartFile videoFile = downloadVideoFromUrl(videoUrlFromFastAPI);
 
+        Post post = new Post();
+        post.setTitle(postDTO.getTitle());
+        post.setUser(userRepository.findById(postDTO.getUserId())
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다.")));
+        post.setUpdateTime(LocalDateTime.now());
+
+        byte[] thumbnailBytes = fastApiClient.requestThumbnail(videoFile);
+        String thumbnailUrl = s3Uploader.upload(thumbnailBytes, "post-thumbnails", "jpg");
+        String s3VideoUrl = s3Uploader.upload(videoFile, "post-videos");
+
+        post.setThumbnailURL(thumbnailUrl);
+        post.setVideoURL(s3VideoUrl);
+
+        List<PostHashTag> postHashTags = postDTO.getHashtags().stream().map(tagName -> {
+            HashTag tag = hashTagRepository.findByHashName(tagName)
+                    .orElseGet(() -> hashTagRepository.save(HashTag.builder().hashName(tagName).build()));
+            return PostHashTag.builder().post(post).hashTag(tag).build();
+        }).collect(Collectors.toList());
+
+        post.setPostHashTags(postHashTags);
+        postRepository.save(post);
+    }
+
+    // 🔹 게시물 등록 (파일 시스템 기반 기반)
+    @Transactional
+    public void createPostWithFile(PostCreateDTO postDTO, MultipartFile videoFile) throws IOException {
         Post post = new Post();
         post.setTitle(postDTO.getTitle());
         post.setUser(userRepository.findById(postDTO.getUserId())
