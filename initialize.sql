@@ -4,6 +4,7 @@ USE AI_VIDEO;
 -- 1️⃣ 테이블 삭제 순서 조정 (외래 키 참조 방지)
 SET FOREIGN_KEY_CHECKS = 0;  -- 🚨 외래 키 검사 비활성화
 
+DROP TABLE IF EXISTS `refresh_token`;
 DROP TABLE IF EXISTS `comment_like`;
 DROP TABLE IF EXISTS `post_hash_tag`;
 DROP TABLE IF EXISTS `post_like`;
@@ -22,6 +23,14 @@ CREATE TABLE `user` (
                         profileImage VARCHAR(2083),  -- URL 최대 길이 고려
                         email VARCHAR(255) UNIQUE NOT NULL,
                         password VARCHAR(255) NOT NULL
+);
+
+-- 2️⃣-1 리프레시 토큰 테이블 (RefreshToken)
+CREATE TABLE `refresh_token` (
+    user_id INT PRIMARY KEY,  -- userId와 1:1 대응
+    token TEXT NOT NULL,
+    expiry_date DATETIME NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user(userId) ON DELETE CASCADE
 );
 
 -- 3️⃣ 게시물 테이블 (Post)
