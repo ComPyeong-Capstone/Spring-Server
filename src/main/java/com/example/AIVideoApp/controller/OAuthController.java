@@ -111,7 +111,7 @@ public class OAuthController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/kakao")
+    @PostMapping("/kakao/token")
     public ResponseEntity<?> kakaoLogin(@RequestBody Map<String, String> request) {
         String code = request.get("code");
 
