@@ -45,6 +45,24 @@ public class PostController {
         }
     }
 
+    @PostMapping("/upload")
+    public ResponseEntity<String> createPostWithFile(
+            @AuthenticationPrincipal Integer userId,
+            @RequestPart("postDTO") PostCreateDTO postDTO,
+            @RequestPart("videoFile") MultipartFile videoFile
+    ) {
+        try {
+            postDTO.setUserId(userId);
+            postService.createPostWithFile(postDTO, videoFile);
+            return ResponseEntity.ok("게시물이 성공적으로 등록되었습니다.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("영상 업로드 중 오류가 발생했습니다.");
+        }
+    }
+
+
     // 2️⃣ 전체 게시물 조회 (GET /posts)
     @GetMapping
     public ResponseEntity<List<PostThumbnailDTO>> getAllPosts() {
