@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.example.AIVideoApp.repository.RefreshTokenRepository;
+import com.example.AIVideoApp.entity.RefreshToken;
+import java.time.LocalDateTime;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +25,7 @@ public class UserController {
 
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     // 회원가입
     @PostMapping
@@ -53,10 +57,20 @@ public class UserController {
 
             // ✅ JwtTokenProvider를 사용해 토큰 생성
             String token = jwtTokenProvider.createToken(userDTO.getUserId().toString());
+            String refreshToken = jwtTokenProvider.createRefreshToken(userDTO.getUserId().toString());
+
+            // Refresh Token 저장
+            RefreshToken refreshTokenEntity = new RefreshToken(
+                    userDTO.getUserId(),
+                    refreshToken,
+                    LocalDateTime.now().plusDays(7)
+            );
+            refreshTokenRepository.save(refreshTokenEntity);
 
             // ✅ 토큰과 유저 정보를 함께 반환
             Map<String, Object> response = new HashMap<>();
-            response.put("token", token);
+            response.put("accesstoken", token);
+            response.put("refreshToken", refreshToken);
             response.put("user", userDTO);
 
             return ResponseEntity.ok(response);
