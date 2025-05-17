@@ -24,6 +24,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @Service
 @RequiredArgsConstructor
@@ -95,6 +99,22 @@ public class PostService {
                 .stream()
                 .map(PostThumbnailDTO::new) // ✅ 한 줄로 DTO 변환
                 .collect(Collectors.toList());
+    }
+
+    // // 🔹 정렬 방식에 따라 6개의 게시물 반환 (DTO 반환)
+    @Transactional
+    public List<PostThumbnailDTO> getPosts(String sort, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Post> postPage = switch (sort.toLowerCase()) {
+            case "likes" -> postRepository.findAllOrderByLikes(pageable);
+            case "oldest" -> postRepository.findAllWithUser(
+                    PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "updateTime")));
+            default -> postRepository.findAllWithUser(
+                    PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updateTime")));
+        };
+
+        return postPage.stream().map(PostThumbnailDTO::new).collect(Collectors.toList());
     }
 
     // 🔹 특정 게시물 선택 시 재생
