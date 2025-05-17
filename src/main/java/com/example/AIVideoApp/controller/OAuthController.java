@@ -1,23 +1,24 @@
 package com.example.AIVideoApp.controller;
 
 import com.example.AIVideoApp.config.JwtTokenProvider;
+import com.example.AIVideoApp.entity.RefreshToken;
 import com.example.AIVideoApp.entity.User;
 import com.example.AIVideoApp.dto.UserDTO;
+import com.example.AIVideoApp.repository.RefreshTokenRepository;
 import com.example.AIVideoApp.repository.UserRepository;
+import com.example.AIVideoApp.service.S3Uploader;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.LinkedMultiValueMap;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +31,8 @@ public class OAuthController {
 
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenRepository refreshTokenRepository; // ✅ 추가
+    private final S3Uploader s3Uploader;
 
     @Value("${oauth.google.ios-client-id}")
     private String googleIosClientId;
@@ -51,7 +54,8 @@ public class OAuthController {
 
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                     GoogleNetHttpTransport.newTrustedTransport(),
-                    JacksonFactory.getDefaultInstance())
+                    GsonFactory.getDefaultInstance()
+            )
                     .setAudience(Collections.singletonList(expectedClientId))
                     .build();
 
@@ -67,10 +71,19 @@ public class OAuthController {
 
             if (optionalUser.isPresent()) {
                 User user = optionalUser.get();
-                String jwt = jwtTokenProvider.createToken(user.getUserId().toString());
+                String accessToken = jwtTokenProvider.createToken(user.getUserId().toString());
+                String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId().toString());
+
+                RefreshToken refreshTokenEntity = new RefreshToken(
+                        user.getUserId(),
+                        refreshToken,
+                        LocalDateTime.now().plusDays(7)
+                );
+                refreshTokenRepository.save(refreshTokenEntity);
 
                 Map<String, Object> response = new HashMap<>();
-                response.put("token", jwt);
+                response.put("accessToken", accessToken);
+                response.put("refreshToken", refreshToken);
                 response.put("user", new UserDTO(user));
                 return ResponseEntity.ok(response);
             } else {
@@ -85,4 +98,45 @@ public class OAuthController {
         }
     }
 
+    @PostMapping("/google/signup")
+    public ResponseEntity<?> googleSignup(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String nickname = request.get("nickname");
+
+        // 닉네임 중복 확인
+        if (userRepository.findByUsername(nickname).isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 사용 중인 닉네임입니다.");
+        }
+
+        // 이메일 중복 확인
+        if (userRepository.findByEmail(email).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 가입된 이메일입니다.");
+        }
+
+        String profileImageUrl = s3Uploader.getFileUrl("user-profiles/basic.jpeg");
+
+        // 신규 유저 생성
+        User user = new User();
+        user.setEmail(email);
+        user.setUsername(nickname);
+        user.setPassword("SOCIAL_LOGIN_USER");
+        user.setProfileImage(profileImageUrl);
+        userRepository.save(user); // 먼저 저장
+
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId().toString());
+        RefreshToken refreshTokenEntity = new RefreshToken(
+                user.getUserId(),
+                refreshToken,
+                LocalDateTime.now().plusDays(7)
+        );
+        refreshTokenRepository.save(refreshTokenEntity);
+
+        String accessToken = jwtTokenProvider.createToken(user.getUserId().toString());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("accessToken", accessToken);
+        response.put("refreshToken", refreshToken);
+        response.put("user", new UserDTO(user));
+        return ResponseEntity.ok(response);
+    }
 }
