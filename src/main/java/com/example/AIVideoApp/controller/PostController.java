@@ -69,6 +69,15 @@ public class PostController {
         return ResponseEntity.ok(postService.getAllPosts()); // ✅ Post → PostDTO 반환
     }
 
+    // 2️⃣ - 1  정렬 방식에 따라 6개의 게시물 조회 (GET /posts)
+    @GetMapping("/sorted")
+    public List<PostThumbnailDTO> getAllPosts(
+            @RequestParam(defaultValue = "latest") String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size) {
+        return postService.getPosts(sort, page, size);
+    }
+
     // 게시물 선택 후 재생 요청
     @GetMapping("/{postId}")
     public ResponseEntity<PostVideoDTO> getPostById(@PathVariable Integer postId) {

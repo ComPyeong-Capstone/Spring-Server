@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -20,5 +22,18 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     @Query("SELECT p FROM Post p JOIN FETCH p.user")
     List<Post> findAllWithUser();
+
+    @Query("SELECT p FROM Post p JOIN FETCH p.user")
+    Page<Post> findAllWithUser(Pageable pageable);
+
+    @Query("""
+    SELECT p FROM Post p
+    LEFT JOIN p.postLikes l
+    JOIN FETCH p.user
+    GROUP BY p
+    ORDER BY COUNT(l) DESC, p.updateTime DESC
+""")
+    Page<Post> findAllOrderByLikes(Pageable pageable);
+
 
 }
