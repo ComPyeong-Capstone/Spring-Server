@@ -6,6 +6,7 @@ import com.example.AIVideoApp.entity.User;
 import com.example.AIVideoApp.dto.UserDTO;
 import com.example.AIVideoApp.repository.RefreshTokenRepository;
 import com.example.AIVideoApp.repository.UserRepository;
+import com.example.AIVideoApp.service.S3Uploader;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -31,6 +32,7 @@ public class OAuthController {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository; // ✅ 추가
+    private final S3Uploader s3Uploader;
 
     @Value("${oauth.google.ios-client-id}")
     private String googleIosClientId;
@@ -111,11 +113,14 @@ public class OAuthController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 가입된 이메일입니다.");
         }
 
+        String profileImageUrl = s3Uploader.getFileUrl("user-profiles/basic.jpeg");
+
         // 신규 유저 생성
         User user = new User();
         user.setEmail(email);
         user.setUsername(nickname);
         user.setPassword("SOCIAL_LOGIN_USER");
+        user.setProfileImage(profileImageUrl);
         userRepository.save(user); // 먼저 저장
 
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId().toString());
