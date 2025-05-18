@@ -40,6 +40,9 @@ public class OAuthController {
     @Value("${oauth.google.android-client-id}")
     private String googleAndroidClientId;
 
+    @Value("${oauth.google.web-client-id}")
+    private String googleWebClientId;
+
     @PostMapping("/google")
     public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> request) {
         String idToken = request.get("idToken");
@@ -50,7 +53,8 @@ public class OAuthController {
         }
 
         try {
-            String expectedClientId = platform.equalsIgnoreCase("ios") ? googleIosClientId : googleAndroidClientId;
+//            String expectedClientId = platform.equalsIgnoreCase("ios") ? googleIosClientId : googleAndroidClientId;
+            String expectedClientId = googleWebClientId;
 
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                     GoogleNetHttpTransport.newTrustedTransport(),
