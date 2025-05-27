@@ -157,4 +157,10 @@ public class PostController {
         return ResponseEntity.ok(likers);
     }
 
+    // 영상 생성에 사용된 이미지 반환
+    @GetMapping("/{postId}/images")
+    public ResponseEntity<List<String>> getPostImages(@PathVariable Integer postId) {
+        List<String> imageUrls = postService.getImageUrlsByPostId(postId);
+        return ResponseEntity.ok(imageUrls);
+    }
 }

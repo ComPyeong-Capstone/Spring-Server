@@ -15,4 +15,5 @@ public class PostCreateDTO {
     private String thumbnailURL;
     private String videoURL;
     private List<String> hashtags;
+    private List<String> imageUrls;
 }
