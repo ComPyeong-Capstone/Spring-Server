@@ -6,11 +6,13 @@ import com.example.AIVideoApp.dto.PostThumbnailDTO;
 import com.example.AIVideoApp.entity.HashTag;
 import com.example.AIVideoApp.entity.Post;
 import com.example.AIVideoApp.entity.PostHashTag;
+import com.example.AIVideoApp.entity.PostImage;
 import com.example.AIVideoApp.external.FastApiClient;
 import com.example.AIVideoApp.repository.HashTagRepository;
 import com.example.AIVideoApp.repository.PostRepository;
 import com.example.AIVideoApp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,6 +35,9 @@ import org.springframework.data.domain.Sort;
 @Service
 @RequiredArgsConstructor
 public class PostService {
+
+    @Value("${fastapi.url}")
+    private String fastApiBaseUrl;
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -53,6 +59,21 @@ public class PostService {
         byte[] thumbnailBytes = fastApiClient.requestThumbnail(videoFile);
         String thumbnailUrl = s3Uploader.upload(thumbnailBytes, "post-thumbnails", "jpg");
         String s3VideoUrl = s3Uploader.upload(videoFile, "post-videos");
+
+        if (postDTO.getImageUrls() != null && !postDTO.getImageUrls().isEmpty()) {
+            List<PostImage> images = new ArrayList<>();
+            for (String imageUrl : postDTO.getImageUrls()) {
+                String SERVER_URL = fastApiBaseUrl + "/images/";
+                MultipartFile imageFile = downloadImageFromUrl(SERVER_URL + imageUrl);
+                String s3ImageUrl = s3Uploader.upload(imageFile, "post-images");
+
+                PostImage postImage = new PostImage();
+                postImage.setImageURL(s3ImageUrl);
+                postImage.setPost(post);
+                images.add(postImage);
+            }
+            post.setImages(images);
+        }
 
         post.setThumbnailURL(thumbnailUrl);
         post.setVideoURL(s3VideoUrl);
@@ -187,6 +208,17 @@ public class PostService {
         return "게시물 수정이 완료되었습니다.";
     }
 
+    // 영상 생성에 사용된 이미지 url 리스트 반환
+    @Transactional(readOnly = true)
+    public List<String> getImageUrlsByPostId(Integer postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 게시물을 찾을 수 없습니다."));
+
+        return post.getImages().stream()
+                .map(PostImage::getImageURL)
+                .collect(Collectors.toList());
+    }
+
     private MultipartFile downloadVideoFromUrl(String fileUrl) throws IOException {
         URL url = new URL(fileUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -196,6 +228,18 @@ public class PostService {
         try (InputStream inputStream = connection.getInputStream()) {
             byte[] fileBytes = inputStream.readAllBytes();
             return new MockMultipartFile(fileName, fileName, "video/mp4", fileBytes);
+        }
+    }
+
+    private MultipartFile downloadImageFromUrl(String imageUrl) throws IOException {
+        URL url = new URL(imageUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+
+        String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+        try (InputStream inputStream = connection.getInputStream()) {
+            byte[] imageBytes = inputStream.readAllBytes();
+            return new MockMultipartFile(fileName, fileName, "image/jpeg", imageBytes);
         }
     }
 }
